@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --app-bg: #f8fafc;
+  --app-text: #0f172a;
+  color: var(--app-text);
+  background-color: var(--app-bg);
+}
+
+:root.dark {
+  --app-bg: #0b1220;
+  --app-text: #e2e8f0;
+  color: var(--app-text);
+  background-color: var(--app-bg);
+  color-scheme: dark;
+}
+
+body {
+  background-color: inherit;
+  color: inherit;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Generic dark-mode mapping for legacy light pages */
+:root.dark .bg-white {
+  background-color: #0f172a;
+}
+
+:root.dark .bg-gray-50 {
+  background-color: #111827;
+}
+
+:root.dark .bg-gray-100 {
+  background-color: #1e293b;
+}
+
+:root.dark .text-gray-900 {
+  color: #f8fafc;
+}
+
+:root.dark .text-gray-800 {
+  color: #e2e8f0;
+}
+
+:root.dark .text-gray-700 {
+  color: #cbd5e1;
+}
+
+:root.dark .text-gray-600 {
+  color: #94a3b8;
+}
+
+:root.dark .text-gray-500 {
+  color: #94a3b8;
+}
+
+:root.dark .text-gray-400 {
+  color: #64748b;
+}
+
+:root.dark .border-gray-100,
+:root.dark .border-gray-200,
+:root.dark .border-gray-300 {
+  border-color: #334155;
+}
+
+/* Scoped light-mode mapping for legacy dark-styled seller/admin interfaces */
+:root.light:is([data-scope="admin"], [data-scope="seller"]) {
+  --scope-bg: #f1f5f9;
+  --scope-surface: #ffffff;
+  --scope-surface-soft: #eef2ff;
+  --scope-border: #cbd5e1;
+  --scope-text: #0f172a;
+  --scope-muted: #475569;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#070c18]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#081122]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#0a1020]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#0b1324]"] {
+  background-color: var(--scope-bg);
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#0f172a]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#0a1224]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#091022]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#111827]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#1e293b]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#1f1a1a]"] {
+  background-color: var(--scope-surface);
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#020617]"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="bg-[#0b1220]"] {
+  background-color: var(--scope-surface-soft);
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="border-white/"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="border-gray-700"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="border-gray-800"] {
+  border-color: var(--scope-border);
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="divide-gray-700"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="divide-gray-800"] {
+  border-color: var(--scope-border);
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-white"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-gray-100"] {
+  color: var(--scope-text);
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"])
+  :is(
+    [class~="text-white"][class*="bg-red-"],
+    [class~="text-white"][class*="bg-green-"],
+    [class~="text-white"][class*="bg-blue-"],
+    [class~="text-white"][class*="bg-cyan-"],
+    [class~="text-white"][class*="bg-orange-"],
+    [class~="text-white"][class*="bg-violet-"],
+    [class~="text-white"][class*="bg-emerald-"],
+    [class~="text-white"][class*="bg-amber-"],
+    [class~="text-white"][class*="bg-fuchsia-"],
+    [class~="text-white"][class*="bg-rose-"],
+    [class~="text-white"][class*="bg-indigo-"]
+  ) {
+  color: #ffffff;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-gray-200"] {
+  color: #1e293b;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-gray-300"] {
+  color: #334155;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-gray-400"] {
+  color: #64748b;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-gray-500"] {
+  color: #94a3b8;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-cyan-200"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-cyan-300"] {
+  color: #0e7490;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-emerald-200"] {
+  color: #047857;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-amber-200"] {
+  color: #b45309;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-violet-200"] {
+  color: #6d28d9;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class~="text-red-200"] {
+  color: #b91c1c;
+}
+
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="from-[#"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="via-[#"],
+:root.light:is([data-scope="admin"], [data-scope="seller"]) [class*="to-[#"] {
+  --tw-gradient-from: #ffffff var(--tw-gradient-from-position);
+  --tw-gradient-via: #eef2ff var(--tw-gradient-via-position);
+  --tw-gradient-to: #dbeafe var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+}
+
+@keyframes platformUpdateEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.platform-update-enter {
+  animation: platformUpdateEnter 380ms ease-out both;
+}
