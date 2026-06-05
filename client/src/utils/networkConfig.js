@@ -1,4 +1,4 @@
-// List all backend nodes with failover priority
+// List all backend nodes with failover priority (order matters!)
 export const PEER_NODES = [
   // Production primary (Render)
   'https://gulit-ecommerce.onrender.com',
@@ -7,6 +7,31 @@ export const PEER_NODES = [
   // Local development fallback
   'http://localhost:3000',
 ];
+
+// Health check tracking - remember which nodes are down
+const nodeHealthMap = new Map();
+const HEALTH_RESET_TIME = 30000; // 30 seconds - retry failed nodes after this
+
+export const markNodeDown = (url) => {
+  nodeHealthMap.set(url, { isDown: true, timestamp: Date.now() });
+};
+
+export const markNodeUp = (url) => {
+  nodeHealthMap.delete(url);
+};
+
+export const isNodeHealthy = (url) => {
+  const health = nodeHealthMap.get(url);
+  if (!health) return true; // Unknown nodes are assumed healthy
+  
+  // If node has been down for longer than reset time, retry it
+  if (Date.now() - health.timestamp > HEALTH_RESET_TIME) {
+    nodeHealthMap.delete(url);
+    return true;
+  }
+  
+  return !health.isDown;
+};
 
 // Always prefer the current machine backend first
 const getDefaultBackendUrl = () => {
@@ -54,18 +79,31 @@ export const getActiveBackendUrl = () => {
 };
 
 export const rotateBackendNode = (currentUrl) => {
-  const fallbackNode = PEER_NODES.find((node) => node !== currentUrl);
-
-  if (fallbackNode) {
-    const clean = fallbackNode.replace(/\/$/, '');
-    sessionStorage.setItem('activeBackendUrl', clean);
-    console.warn(`🔄 Switched backend to: ${clean}`);
-    // Dispatch custom event to notify listeners (like Socket.io connection in App.jsx)
-    window.dispatchEvent(new Event('backendRotated'));
-    return clean;
+  // Find the current node's index
+  const currentIndex = PEER_NODES.indexOf(currentUrl);
+  
+  // Try to find the next healthy node in order
+  for (let i = 1; i < PEER_NODES.length; i++) {
+    const nextIndex = (currentIndex + i) % PEER_NODES.length;
+    const nextNode = PEER_NODES[nextIndex];
+    
+    if (isNodeHealthy(nextNode)) {
+      const clean = nextNode.replace(/\/$/, '');
+      sessionStorage.setItem('activeBackendUrl', clean);
+      console.warn(`🔄 Switched backend from [${currentUrl}] to [${clean}]`);
+      // Dispatch custom event to notify listeners (like Socket.io connection in App.jsx)
+      window.dispatchEvent(new Event('backendRotated'));
+      return clean;
+    }
   }
-
-  return currentUrl;
+  
+  // If all nodes are marked unhealthy, fall back to the first one anyway (reset)
+  const fallbackNode = PEER_NODES[0];
+  const clean = fallbackNode.replace(/\/$/, '');
+  sessionStorage.setItem('activeBackendUrl', clean);
+  console.warn(`🔄 No healthy nodes found, resetting to primary: [${clean}]`);
+  nodeHealthMap.clear(); // Clear health tracking to retry
+  return clean;
 };
 
 // Keep active backend URL across refreshes within the same session/tab

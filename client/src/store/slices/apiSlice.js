@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { getActiveBackendUrl, rotateBackendNode, PEER_NODES } from '../../utils/networkConfig'; 
+import { getActiveBackendUrl, rotateBackendNode, markNodeDown, markNodeUp, isNodeHealthy, PEER_NODES } from '../../utils/networkConfig'; 
 
 // ─── ONE-TIME MIGRATION ───────────────────────────────────────────────────────
 // Old versions stored the active backend URL in localStorage which caused
@@ -18,6 +18,19 @@ export const BASE_URL = {
   valueOf: () => getActiveBackendUrl()
 };
 // ─────────────────────────────────────
+
+// ─── REQUEST TIMEOUT CONFIG ───
+const REQUEST_TIMEOUT = 8000; // 8 seconds timeout per request
+
+// Helper to create a timeout promise
+const withTimeout = (promise, timeoutMs) => {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+    )
+  ]);
+};
 
 // ─── CUSTOM DYNAMIC CLUSTER BASE QUERY WRAPPER ───
 const dynamicClusterBaseQuery = async (args, api, extraOptions) => {
@@ -43,14 +56,25 @@ const dynamicClusterBaseQuery = async (args, api, extraOptions) => {
   };
 
   // Keep trying nodes in the cluster until one works or we have tried all options
-  const maxAttempts = PEER_NODES.length + 1; // local + peers
+  const maxAttempts = PEER_NODES.length;
   let attempt = 0;
   let lastResult;
 
   while (attempt < maxAttempts) {
+    // Skip unhealthy nodes
+    if (!isNodeHealthy(activeUrl)) {
+      console.warn(`⏭️  Skipping unhealthy node: [${activeUrl}]`);
+      const nextUrl = rotateBackendNode(activeUrl);
+      if (nextUrl === activeUrl) break; // No more nodes to try
+      activeUrl = nextUrl;
+      attempt++;
+      continue;
+    }
+
     const currentArgs = cleanArgsForNode(adjustedArgs, activeUrl);
     const rawBaseQuery = fetchBaseQuery({
       baseUrl: activeUrl,
+      timeout: REQUEST_TIMEOUT, // Built-in timeout
       prepareHeaders: (headers, { getState, endpoint }) => {
         const userToken = getState().auth?.userInfo?.token;
         const sellerToken = getState().sellerAuth?.sellerInfo?.token;
@@ -79,25 +103,67 @@ const dynamicClusterBaseQuery = async (args, api, extraOptions) => {
       },
     });
 
-    lastResult = await rawBaseQuery(currentArgs, api, extraOptions);
+    try {
+      // Apply timeout wrapper
+      lastResult = await withTimeout(
+        rawBaseQuery(currentArgs, api, extraOptions),
+        REQUEST_TIMEOUT
+      );
 
-    if (!lastResult.error || (lastResult.error.status !== 'FETCH_ERROR' && lastResult.error.status !== 503)) {
       // Success or a normal API error (e.g. 400, 401, 404) -> return it immediately
-      return lastResult;
-    }
+      if (!lastResult.error) {
+        markNodeUp(activeUrl);
+        return lastResult;
+      }
 
-    // Node is down - rotate to next
-    console.warn(`🚨 RTK Query Cluster Watchdog: Node [${activeUrl}] down. Rotating routes...`);
-    const nextUrl = rotateBackendNode(activeUrl);
-    if (nextUrl === activeUrl) {
-      // No other fallback node available
-      break;
+      // Check if this is a server error (5xx) or network error
+      const status = lastResult.error.status;
+      const isServerError = status === 503 || status === 502 || status === 500;
+      const isNetworkError = status === 'FETCH_ERROR' || status === 'TIMEOUT_ERROR';
+
+      if (isServerError || isNetworkError) {
+        // Mark node as down and try next
+        console.warn(`🚨 Node [${activeUrl}] failed with ${status}. Rotating...`);
+        markNodeDown(activeUrl);
+        
+        const nextUrl = rotateBackendNode(activeUrl);
+        if (nextUrl === activeUrl) {
+          // No other fallback node available
+          return lastResult;
+        }
+        activeUrl = nextUrl;
+        attempt++;
+      } else {
+        // For non-server errors (4xx), return immediately
+        markNodeUp(activeUrl);
+        return lastResult;
+      }
+    } catch (error) {
+      // Timeout or other error occurred
+      console.warn(`🚨 Request to [${activeUrl}] timed out or failed: ${error.message}`);
+      markNodeDown(activeUrl);
+      
+      const nextUrl = rotateBackendNode(activeUrl);
+      if (nextUrl === activeUrl) {
+        // No other fallback node available
+        return {
+          error: {
+            status: 'FETCH_ERROR',
+            data: { message: 'All backend nodes are unavailable' }
+          }
+        };
+      }
+      activeUrl = nextUrl;
+      attempt++;
     }
-    activeUrl = nextUrl;
-    attempt++;
   }
 
-  return lastResult;
+  return lastResult || {
+    error: {
+      status: 'FETCH_ERROR',
+      data: { message: 'All backend nodes exhausted' }
+    }
+  };
 };
 
 // ─── INITIALIZE CENTRALIZED API SLICE ───
