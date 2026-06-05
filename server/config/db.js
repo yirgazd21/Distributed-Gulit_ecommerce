@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const REPLICA_URI = process.env.MONGO_URI;
-const LOCAL_URI   = process.env.MONGO_LOCAL_URI || 'mongodb://127.0.0.1:27017/ecomerce';
+const LOCAL_URI   = process.env.MONGO_LOCAL_URI|| 'mongodb://127.0.0.1:27017/ecomerce';
 
 let currentMode = 'none'; // 'replica' | 'standalone' | 'none'
 
