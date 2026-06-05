@@ -337,9 +337,9 @@ const ProductDetailScreen = () => {
                 </button>
               </form>
             ) : (
-              <div className="bg-blue-50 text-blue-700 p-6 rounded-2xl text-center">
+              <div className="bg-blue-50 text-blue-700 p-6  dark:bg-black dark:text-blue-300 rounded-2xl text-center">
                 <p className="mb-3 font-medium">Please sign in to write a review</p>
-                <Link to="/login" className="inline-block bg-white text-blue-600 font-bold px-6 py-2 rounded-lg shadow-sm">
+                <Link to="/login" className="inline-block bg-white text-green-400 font-bold px-6 py-2 rounded-lg shadow-sm">
                   Sign In
                 </Link>
               </div>
