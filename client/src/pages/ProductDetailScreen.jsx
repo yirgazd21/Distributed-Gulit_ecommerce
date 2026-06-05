@@ -331,7 +331,7 @@ const ProductDetailScreen = () => {
                 <button
                   disabled={loadingProductReview}
                   type="submit"
-                  className="w-full bg-gray-900 hover:bg-black text-white py-3.5 rounded-xl font-bold transition-all disabled:bg-gray-400"
+                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-bold transition-all disabled:bg-gray-400"
                 >
                   {loadingProductReview ? <Loader /> : 'Submit Review'}
                 </button>
