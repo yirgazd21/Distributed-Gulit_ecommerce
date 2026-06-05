@@ -1,9 +1,9 @@
-// List all peer backend nodes across your ZeroTier network
+// List all backend nodes with failover priority
 export const PEER_NODES = [
   // Production primary (Render)
   'https://gulit-ecommerce.onrender.com',
-  // Alternative public backend (Replit) if you deploy there
-  'https://gulit-server--yirgalemzegeye2.replit.app',
+  // Automatic failover (Back4App) if Render is down
+  'https://gulitecommerce-041ejql5.b4a.run',
   // Local development fallback
   'http://localhost:3000',
 ];
