@@ -119,9 +119,15 @@ const App = () => {
     // ─── DYNAMIC ZEROTIER OVERRIDE ───────────────────────────────────────────
     // Automatically target the active socket URL (which updates when rotated)
     console.log(`[Socket] Connecting to: ${activeSocketUrl}`);
+    // Normalize URL: remove trailing slash and prefer https when page is https
+    let socketUrl = String(activeSocketUrl).replace(/\/$/, '');
+    if (window.location.protocol === 'https:' && socketUrl.startsWith('http://')) {
+      socketUrl = socketUrl.replace(/^http:\/\//, 'https://');
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
 
-    const socket = io(activeSocketUrl, {
+    const socket = io(socketUrl, {
       transports: ['websocket', 'polling'],
       reconnectionAttempts: Infinity,
       reconnectionDelay: 2000,

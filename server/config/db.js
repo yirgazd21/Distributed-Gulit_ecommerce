@@ -9,13 +9,8 @@ const LOCAL_URI   = process.env.MONGO_LOCAL_URI|| 'mongodb://127.0.0.1:27017/eco
 let currentMode = 'none'; // 'replica' | 'standalone' | 'none'
 
 const connectDB = async () => {
-  // ── Attempt 1: Replica set ──────────────────────────────────────────────────
-  // heartbeatFrequencyMS: 2000  → detect a dead node in ~2s (default is 10s)
-  // serverSelectionTimeoutMS: 10000 → give up waiting for a primary after 10s
-  //   With the arbiter on PC1, election completes in ~5-8s after a node dies,
-  //   so 10s is enough headroom without making users wait too long.
-  // bufferCommands: false → operations fail immediately if no primary is
-  //   available instead of queuing silently forever.
+ 
+  
   try {
     const conn = await mongoose.connect(REPLICA_URI, {
       bufferCommands: false,

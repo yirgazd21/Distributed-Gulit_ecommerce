@@ -29,8 +29,18 @@ const getDefaultBackendUrl = () => {
 export const getActiveBackendUrl = () => {
   const stored = sessionStorage.getItem('activeBackendUrl');
 
-  // If no stored value → use local machine backend
-  if (!stored) {
+  const isPrivateIp = (url) => {
+    if (!url || typeof url !== 'string') return false;
+    // Matches 10.x.x.x, 192.168.x.x, 172.16-31.x.x and localhost
+    return /(^|:\/\/)(10\.|127\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)/.test(url) || url.includes('localhost');
+  };
+
+  // If no stored value → use default (which prefers VITE_API_BASE_URL)
+  if (!stored) return getDefaultBackendUrl();
+
+  // Ignore private ZeroTier/local IPs in deployed/frontend environments
+  if (isPrivateIp(stored)) {
+    sessionStorage.removeItem('activeBackendUrl');
     return getDefaultBackendUrl();
   }
 
@@ -47,11 +57,12 @@ export const rotateBackendNode = (currentUrl) => {
   const fallbackNode = PEER_NODES.find((node) => node !== currentUrl);
 
   if (fallbackNode) {
-    sessionStorage.setItem('activeBackendUrl', fallbackNode);
-    console.warn(`🔄 Switched backend to: ${fallbackNode}`);
+    const clean = fallbackNode.replace(/\/$/, '');
+    sessionStorage.setItem('activeBackendUrl', clean);
+    console.warn(`🔄 Switched backend to: ${clean}`);
     // Dispatch custom event to notify listeners (like Socket.io connection in App.jsx)
     window.dispatchEvent(new Event('backendRotated'));
-    return fallbackNode;
+    return clean;
   }
 
   return currentUrl;
