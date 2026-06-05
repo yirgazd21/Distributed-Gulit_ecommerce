@@ -1,12 +1,22 @@
 // List all peer backend nodes across your ZeroTier network
 export const PEER_NODES = [
-  "http://10.40.210.101:3000",
-  "http://10.40.210.21:3000",
+  // Production primary (Render)
+  'https://gulit-ecommerce.onrender.com',
+  // Alternative public backend (Replit) if you deploy there
+  'https://gulit-server--yirgalemzegeye2.replit.app',
+  // Local development fallback
+  'http://localhost:3000',
 ];
 
 // Always prefer the current machine backend first
 const getDefaultBackendUrl = () => {
   const { protocol, hostname } = window.location;
+
+  // Use the explicit frontend env var in deployed production builds.
+  const envBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (envBaseUrl && envBaseUrl !== '' && envBaseUrl !== 'http://localhost:3000') {
+    return envBaseUrl.replace(/\/$/, '');
+  }
 
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
     return 'http://localhost:3000';
