@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaTrash, FaArrowLeft, FaShoppingBag, FaTag } from 'react-icons/fa';
 import { addToCart, removeFromCart, savePaymentMethod } from '../store/slices/cartSlice';
 import { toast } from 'react-toastify';
-import { BASE_URL } from '../store/slices/apiSlice';
+import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
 import { useAddToCartDBMutation, useRemoveFromCartDBMutation } from '../store/slices/usersApiSlice';
 
 const CartScreen = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [imageRefreshKey, setImageRefreshKey] = useState(0); // Force image re-render on backend rotation
 
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
@@ -17,6 +18,17 @@ const CartScreen = () => {
 
   const [addToCartDB] = useAddToCartDBMutation();
   const [removeFromCartDB] = useRemoveFromCartDBMutation();
+
+  // 🔄 CRITICAL FIX: Listen for backend rotation and refresh images
+  useEffect(() => {
+    const handleBackendRotation = () => {
+      console.log('🔄 Backend rotated - Refreshing cart images...');
+      setImageRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener('backendRotated', handleBackendRotation);
+    return () => window.removeEventListener('backendRotated', handleBackendRotation);
+  }, []);
 
   const addToCartHandler = async (product, qty) => {
     // Optimistic update
@@ -113,6 +125,7 @@ const CartScreen = () => {
                       {/* Product Info */}
                       <div className="flex items-center gap-4 w-full md:w-auto">
                         <img
+                          key={`cart-img-${item.cartItemId || item._id}-${imageRefreshKey}`}
                           src={`${BASE_URL}${item.image}`}
                           alt={item.name}
                           loading="lazy"
@@ -121,7 +134,7 @@ const CartScreen = () => {
                           height="72"
                           className="w-16 h-16 md:w-20 md:h-20 object-contain p-1 rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700"
                           onError={(e) => {
-                            const url1 = `${BASE_URL}${item.image}`;
+                            const url1 = `${getActiveBackendUrl()}${item.image}`;
                             const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
                             const url2 = url2Base ? `${url2Base}${item.image}` : '';
 

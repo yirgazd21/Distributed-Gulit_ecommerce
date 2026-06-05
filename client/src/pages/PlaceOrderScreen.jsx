@@ -8,7 +8,7 @@ import CheckoutSteps from '../components/CheckoutSteps';
 import { toast } from 'react-toastify';
 import { FaMapMarkerAlt, FaCreditCard, FaShoppingBag } from 'react-icons/fa';
 import Loader from '../components/Loader';
-import { BASE_URL } from '../store/slices/apiSlice';
+import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
@@ -22,6 +22,19 @@ const PlaceOrderScreen = () => {
   const [clearCartDB] = useClearCartDBMutation();
 
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+
+  const [imageRefreshKey, setImageRefreshKey] = useState(0); // Force image re-render on backend rotation
+
+  // 🔄 CRITICAL FIX: Listen for backend rotation and refresh images
+  useEffect(() => {
+    const handleBackendRotation = () => {
+      console.log('🔄 Backend rotated - Refreshing place order images...');
+      setImageRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener('backendRotated', handleBackendRotation);
+    return () => window.removeEventListener('backendRotated', handleBackendRotation);
+  }, []);
 
   // Safe cart values with defaults
   const cartItems = cart?.cartItems || [];
@@ -304,11 +317,12 @@ const PlaceOrderScreen = () => {
                 <div key={i} className="flex justify-between border-b py-3 text-sm sm:text-base">
                   <div className="flex gap-3 items-center">
                     <img
+                      key={`place-order-img-${i}-${imageRefreshKey}`}
                       src={`${BASE_URL}${item.image}`}
                       className="w-12 h-12 rounded object-cover"
                       alt={item.name || 'Product'}
                       onError={(e) => {
-                        const url1 = item.image?.startsWith('http') ? item.image : `${BASE_URL}${item.image}`;
+                        const url1 = item.image?.startsWith('http') ? item.image : `${getActiveBackendUrl()}${item.image}`;
                         const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
                         const url2 = url2Base ? `${url2Base}${item.image}` : '';
 

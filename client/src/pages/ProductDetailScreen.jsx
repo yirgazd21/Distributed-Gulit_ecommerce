@@ -17,7 +17,7 @@ import {
   FaTag
 } from 'react-icons/fa';
 // 👇 IMPORTANT: Make sure this import path is correct for your project structure
-import { BASE_URL } from '../store/slices/apiSlice';
+import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
 
 const ProductDetailScreen = () => {
   const { id: productId } = useParams();
@@ -31,6 +31,7 @@ const ProductDetailScreen = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const [imageRefreshKey, setImageRefreshKey] = useState(0); // Force image re-render on backend rotation
 
   const { userInfo } = useSelector((state) => state.auth);
 
@@ -55,6 +56,18 @@ const ProductDetailScreen = () => {
       });
     }
   }, [product, userInfo, addToBrowseHistory]);
+
+  // 🔄 CRITICAL FIX: Listen for backend rotation and refresh images
+  useEffect(() => {
+    const handleBackendRotation = () => {
+      console.log('🔄 Backend rotated - Refreshing images...');
+      // Increment key to force React to remount image elements with new BASE_URL
+      setImageRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener('backendRotated', handleBackendRotation);
+    return () => window.removeEventListener('backendRotated', handleBackendRotation);
+  }, []);
 
   const addToCartHandler = () => {
     dispatch(addToCart({
@@ -122,11 +135,12 @@ const ProductDetailScreen = () => {
               <div className="w-full aspect-square bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-slate-700 overflow-hidden shadow-inner flex items-center justify-center">
                 {/* 👇 FIX: Ensure BASE_URL is prepended */}
                 <img
+                  key={`main-img-${imageRefreshKey}`}
                   src={`${BASE_URL}${currentDisplayImage}`}
                   alt={product.name}
                   className="w-full h-full object-contain p-4 transition-all duration-300"
                   onError={(e) => {
-                    const url1 = `${BASE_URL}${currentDisplayImage}`;
+                    const url1 = `${getActiveBackendUrl()}${currentDisplayImage}`;
                     const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
                     const url2 = url2Base ? `${url2Base}${currentDisplayImage}` : '';
 
@@ -153,11 +167,12 @@ const ProductDetailScreen = () => {
                     >
                       {/* 👇 FIX: Ensure BASE_URL is prepended to thumbnails too */}
                       <img
+                        key={`thumb-img-${index}-${imageRefreshKey}`}
                         src={`${BASE_URL}${imgPath}`}
                         alt={`thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          const url1 = `${BASE_URL}${imgPath}`;
+                          const url1 = `${getActiveBackendUrl()}${imgPath}`;
                           const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
                           const url2 = url2Base ? `${url2Base}${imgPath}` : '';
 

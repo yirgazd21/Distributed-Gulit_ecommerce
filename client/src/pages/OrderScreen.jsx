@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   useGetOrderDetailsQuery,
@@ -19,7 +19,7 @@ import {
   FaTimesCircle
 } from 'react-icons/fa';
 
-import { BASE_URL } from '../store/slices/apiSlice';
+import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
 import { useInitializeChapaPaymentMutation } from '../store/slices/ordersApiSlice';
 
 const OrderScreen = () => {
@@ -37,6 +37,18 @@ const OrderScreen = () => {
 
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [reviewInputs, setReviewInputs] = useState({});
+  const [imageRefreshKey, setImageRefreshKey] = useState(0); // Force image re-render on backend rotation
+
+  // 🔄 CRITICAL FIX: Listen for backend rotation and refresh images
+  useEffect(() => {
+    const handleBackendRotation = () => {
+      console.log('🔄 Backend rotated - Refreshing order images...');
+      setImageRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener('backendRotated', handleBackendRotation);
+    return () => window.removeEventListener('backendRotated', handleBackendRotation);
+  }, []);
 
   const formatDate = (value) =>
     value ? String(value).substring(0, 10) : 'N/A';
@@ -207,6 +219,7 @@ const OrderScreen = () => {
                       {/* IMAGE */}
                       <Link to={`/product/${item.product}`}>
                         <img
+                          key={`order-img-${i}-${imageRefreshKey}`}
                           src={
                             item.image?.startsWith('http')
                               ? item.image
@@ -215,7 +228,7 @@ const OrderScreen = () => {
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-xl border border-gray-200 dark:border-slate-700 hover:scale-105 transition-transform"
                           onError={(e) => {
-                            const url1 = item.image?.startsWith('http') ? item.image : `${BASE_URL}${item.image}`;
+                            const url1 = item.image?.startsWith('http') ? item.image : `${getActiveBackendUrl()}${item.image}`;
                             const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
                             const url2 = url2Base ? `${url2Base}${item.image}` : '';
 

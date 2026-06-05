@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 import { FaHeart, FaRegHeart, FaShoppingCart, FaStar } from 'react-icons/fa';
-import { BASE_URL } from '../store/slices/apiSlice';
+import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
 import {
   useAddToFavoritesMutation,
   useGetUserFavoritesQuery,
@@ -16,11 +16,23 @@ const ProductCard = ({ product }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { userInfo } = useSelector((state) => state.auth);
+  const [imageRefreshKey, setImageRefreshKey] = useState(0); // Force image re-render on backend rotation
 
   const { data: favorites = [] } = useGetUserFavoritesQuery(undefined, { skip: !userInfo });
   const [addToFavorites, { isLoading: addingFavorite }] = useAddToFavoritesMutation();
   const [removeFromFavorites, { isLoading: removingFavorite }] = useRemoveFromFavoritesMutation();
   const [addToCartDB, { isLoading: addingToCart }] = useAddToCartDBMutation();
+
+  // 🔄 CRITICAL FIX: Listen for backend rotation and refresh images
+  useEffect(() => {
+    const handleBackendRotation = () => {
+      console.log('🔄 Backend rotated - Refreshing product card image...');
+      setImageRefreshKey((prev) => prev + 1);
+    };
+
+    window.addEventListener('backendRotated', handleBackendRotation);
+    return () => window.removeEventListener('backendRotated', handleBackendRotation);
+  }, []);
 
   const isFavorite = favorites.some((fav) => String(fav.id) === String(product._id));
 
@@ -95,13 +107,14 @@ const ProductCard = ({ product }) => {
       {/* Image */}
       <Link to={`/product/${product._id}`} className="relative block h-40 bg-gray-50 dark:bg-slate-800 overflow-hidden">
         <img
+          key={`product-card-img-${product._id}-${imageRefreshKey}`}
           src={`${BASE_URL}${product.image}`}
           alt={product.name}
           loading="lazy"
           decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
-            const url1 = `${BASE_URL}${product.image}`;
+            const url1 = `${getActiveBackendUrl()}${product.image}`;
             const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
             const url2 = url2Base ? `${url2Base}${product.image}` : '';
 
