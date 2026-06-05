@@ -136,7 +136,7 @@ const App = () => {
     });
 
     socket.on('connect', () => {
-      console.log(`[Socket] Connected safely via ZeroTier to: ${activeSocketUrl}`);
+      console.log(`[Socket] Connected safely to: ${activeSocketUrl}`);
     });
 
     socket.on('connect_error', (err) => {

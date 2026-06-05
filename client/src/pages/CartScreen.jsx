@@ -198,7 +198,7 @@ const CartScreen = () => {
                             onClick={() => payThisItemHandler(item)}
                             className="ml-2 inline-flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500"
                           >
-                            Pay for this item
+                            Pay 
                           </button>
                         </div>
                       </div>
