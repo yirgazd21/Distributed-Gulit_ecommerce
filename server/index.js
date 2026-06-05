@@ -50,6 +50,10 @@ app.use(express.urlencoded({ extended: false }));
 connectDB();
 startReconnectWatcher();
 
+app.get('/', (req, res) => {
+    res.status(200).send('Backend is running');
+});
+
 // ─── INTERNAL PEER-SYNC ENDPOINT ─────────────────────────────────────────────
 // Called by the peer server to re-emit socket events to THIS server's clients.
 // Protected by a shared secret — never exposed to the public.
