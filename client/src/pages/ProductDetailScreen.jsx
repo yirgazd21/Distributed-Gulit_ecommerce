@@ -126,11 +126,16 @@ const ProductDetailScreen = () => {
                   alt={product.name}
                   className="w-full h-full object-contain p-4 transition-all duration-300"
                   onError={(e) => {
-                    // If the main product showcase image fails on PC_2, stream it straight from PC_1 over ZeroTier
-                    const pc1Backend = "http://10.40.210.101:3000";
+                    const url1 = `${BASE_URL}${currentDisplayImage}`;
+                    const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
+                    const url2 = url2Base ? `${url2Base}${currentDisplayImage}` : '';
 
-                    if (e.target.src !== `${pc1Backend}${currentDisplayImage}`) {
-                      e.target.src = `${pc1Backend}${currentDisplayImage}`;
+                    if (e.target.src !== url1) {
+                      e.target.src = url1;
+                    } else if (url2 && e.target.src !== url2) {
+                      e.target.src = url2;
+                    } else {
+                      e.target.src = '/placeholder.jpg';
                     }
                   }}
                 />
@@ -152,11 +157,16 @@ const ProductDetailScreen = () => {
                         alt={`thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          // Reroute specific carousel thumbnail images to PC_1 over the ZeroTier pipeline if local load fails
-                          const pc1Backend = "http://10.40.210.101:3000";
+                          const url1 = `${BASE_URL}${imgPath}`;
+                          const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
+                          const url2 = url2Base ? `${url2Base}${imgPath}` : '';
 
-                          if (e.target.src !== `${pc1Backend}${imgPath}`) {
-                            e.target.src = `${pc1Backend}${imgPath}`;
+                          if (e.target.src !== url1) {
+                            e.target.src = url1;
+                          } else if (url2 && e.target.src !== url2) {
+                            e.target.src = url2;
+                          } else {
+                            e.target.src = '/placeholder.jpg';
                           }
                         }}
                       />

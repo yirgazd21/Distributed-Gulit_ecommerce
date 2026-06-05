@@ -308,10 +308,14 @@ const PlaceOrderScreen = () => {
                       className="w-12 h-12 rounded object-cover"
                       alt={item.name || 'Product'}
                       onError={(e) => {
-                        const pc1Backend = "http://10.40.210.101:3000";
-                        const primaryFallback = `${pc1Backend}${item.image}`;
-                        if (e.target.src !== primaryFallback) {
-                          e.target.src = primaryFallback;
+                        const url1 = item.image?.startsWith('http') ? item.image : `${BASE_URL}${item.image}`;
+                        const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
+                        const url2 = url2Base ? `${url2Base}${item.image}` : '';
+
+                        if (e.target.src !== url1) {
+                          e.target.src = url1;
+                        } else if (url2 && e.target.src !== url2) {
+                          e.target.src = url2;
                         } else {
                           e.target.src = '/placeholder.jpg';
                         }

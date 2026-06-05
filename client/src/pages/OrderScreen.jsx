@@ -215,12 +215,16 @@ const OrderScreen = () => {
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-xl border border-gray-200 dark:border-slate-700 hover:scale-105 transition-transform"
                           onError={(e) => {
-                            // If the image fails to load via BASE_URL, reroute to PC_1 over the private network lane
-                            const pc1Backend = "http://10.40.210.101:3000";
-                            const fallbackUrl = item.image?.startsWith('http') ? item.image : `${pc1Backend}${item.image}`;
+                            const url1 = item.image?.startsWith('http') ? item.image : `${BASE_URL}${item.image}`;
+                            const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
+                            const url2 = url2Base ? `${url2Base}${item.image}` : '';
 
-                            if (e.target.src !== fallbackUrl) {
-                              e.target.src = fallbackUrl;
+                            if (e.target.src !== url1) {
+                              e.target.src = url1;
+                            } else if (url2 && e.target.src !== url2) {
+                              e.target.src = url2;
+                            } else {
+                              e.target.src = '/placeholder.jpg';
                             }
                           }}
                         />

@@ -101,9 +101,16 @@ const ProductCard = ({ product }) => {
           decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
-            const pc1Backend = 'http://10.40.210.101:3000';
-            if (e.target.src !== `${pc1Backend}${product.image}`) {
-              e.target.src = `${pc1Backend}${product.image}`;
+            const url1 = `${BASE_URL}${product.image}`;
+            const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
+            const url2 = url2Base ? `${url2Base}${product.image}` : '';
+
+            if (e.target.src !== url1) {
+              e.target.src = url1;
+            } else if (url2 && e.target.src !== url2) {
+              e.target.src = url2;
+            } else {
+              e.target.src = '/placeholder.jpg';
             }
           }}
         />

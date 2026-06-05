@@ -121,11 +121,16 @@ const CartScreen = () => {
                           height="72"
                           className="w-16 h-16 md:w-20 md:h-20 object-contain p-1 rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700"
                           onError={(e) => {
-                            // Fallback directly to PC_1 if the image doesn't exist on the current peer node
-                            const pc1Backend = "http://10.40.210.101:3000";
+                            const url1 = `${BASE_URL}${item.image}`;
+                            const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
+                            const url2 = url2Base ? `${url2Base}${item.image}` : '';
 
-                            if (e.target.src !== `${pc1Backend}${item.image}`) {
-                              e.target.src = `${pc1Backend}${item.image}`;
+                            if (e.target.src !== url1) {
+                              e.target.src = url1;
+                            } else if (url2 && e.target.src !== url2) {
+                              e.target.src = url2;
+                            } else {
+                              e.target.src = '/placeholder.jpg';
                             }
                           }}
                         />
