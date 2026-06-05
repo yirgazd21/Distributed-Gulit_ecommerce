@@ -17,7 +17,8 @@ import {
   FaTag
 } from 'react-icons/fa';
 // 👇 IMPORTANT: Make sure this import path is correct for your project structure
-import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
+import { BASE_URL } from '../store/slices/apiSlice';
+import { getActiveBackendUrl } from '../utils/networkConfig';
 
 const ProductDetailScreen = () => {
   const { id: productId } = useParams();

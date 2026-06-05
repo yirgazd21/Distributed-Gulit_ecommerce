@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 import { FaHeart, FaRegHeart, FaShoppingCart, FaStar } from 'react-icons/fa';
-import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
+import { BASE_URL } from '../store/slices/apiSlice';
+import { getActiveBackendUrl } from '../utils/networkConfig';
 import {
   useAddToFavoritesMutation,
   useGetUserFavoritesQuery,

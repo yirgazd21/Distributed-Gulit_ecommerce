@@ -19,7 +19,8 @@ import {
   FaTimesCircle
 } from 'react-icons/fa';
 
-import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
+import { BASE_URL } from '../store/slices/apiSlice';
+import { getActiveBackendUrl } from '../utils/networkConfig';
 import { useInitializeChapaPaymentMutation } from '../store/slices/ordersApiSlice';
 
 const OrderScreen = () => {

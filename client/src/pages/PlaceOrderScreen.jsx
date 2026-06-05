@@ -8,7 +8,8 @@ import CheckoutSteps from '../components/CheckoutSteps';
 import { toast } from 'react-toastify';
 import { FaMapMarkerAlt, FaCreditCard, FaShoppingBag } from 'react-icons/fa';
 import Loader from '../components/Loader';
-import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
+import { BASE_URL } from '../store/slices/apiSlice';
+import { getActiveBackendUrl } from '../utils/networkConfig';
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();

@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaTrash, FaArrowLeft, FaShoppingBag, FaTag } from 'react-icons/fa';
 import { addToCart, removeFromCart, savePaymentMethod } from '../store/slices/cartSlice';
 import { toast } from 'react-toastify';
-import { BASE_URL, getActiveBackendUrl } from '../store/slices/apiSlice';
+import { BASE_URL } from '../store/slices/apiSlice';
+import { getActiveBackendUrl } from '../utils/networkConfig';
 import { useAddToCartDBMutation, useRemoveFromCartDBMutation } from '../store/slices/usersApiSlice';
 
 const CartScreen = () => {
