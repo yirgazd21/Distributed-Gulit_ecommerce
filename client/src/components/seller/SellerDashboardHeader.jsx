@@ -166,24 +166,24 @@ const SellerDashboardHeader = () => {
 
   return (
     <nav className="fixed w-full z-50 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-xl shadow-gray-900/20 transition-colors">
-      <div className="w-full px-6 md:px-12 h-20 flex items-center justify-between">
+      <div className="w-full px-3 sm:px-5 md:px-8 xl:px-12 h-16 sm:h-20 flex items-center justify-between gap-3">
 
         {/* =========================================
             LEFT SIDE
         ========================================= */}
-        <div className="flex items-center gap-8 md:gap-12">
+        <div className="flex items-center gap-3 md:gap-8 xl:gap-12 min-w-0">
 
           <Link
             to="/seller/dashboard"
-            className="flex items-center  gap-3 group"
+            className="flex items-center gap-2 sm:gap-3 group min-w-0"
           >
             <img
               src={logo}
               alt="Gulit Logo"
-              className="w-50 h-50 object-contain group-hover:scale-105 transition-transform duration-300"
+              className="h-10 w-10 sm:h-12 sm:w-12 object-contain group-hover:scale-105 transition-transform duration-300 flex-shrink-0"
             />
 
-            <span className="text-1xl font-black text-slate-900 dark:text-white tracking-tight">
+            <span className="text-sm sm:text-base lg:text-lg font-black text-slate-900 dark:text-white tracking-tight truncate">
               Gulit{' '}
               <span className="text-green-500 font-medium">
                 Workspace
@@ -191,7 +191,7 @@ const SellerDashboardHeader = () => {
             </span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-6 font-medium">
+          <div className="hidden lg:flex items-center gap-6 font-medium">
             <Link
               to="/seller/help-center"
               className="text-gray-600 dark:text-gray-400 hover:text-green-500 dark:hover:text-green-400 transition-colors duration-300"
@@ -218,9 +218,9 @@ const SellerDashboardHeader = () => {
         {/* =========================================
             RIGHT SIDE
         ========================================= */}
-        <div className="flex items-center gap-4 md:gap-6">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-5 xl:gap-6 flex-shrink-0">
 
-          <div className="hidden md:block">
+          <div className="hidden sm:block">
             <ThemeToggle />
           </div>
 
@@ -247,7 +247,7 @@ const SellerDashboardHeader = () => {
             </button>
 
             {notificationsOpen && (
-              <div className="absolute right-0 mt-3 w-80 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-[#1e293b]">
+              <div className="absolute right-0 mt-3 w-[min(20rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-[#1e293b]">
 
                 {/* HEADER */}
                 <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 dark:border-gray-700">
@@ -322,11 +322,11 @@ const SellerDashboardHeader = () => {
 
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center gap-2 text-slate-900 dark:text-white font-medium bg-gray-100 dark:bg-[#1e293b] hover:bg-gray-200 dark:hover:bg-gray-800 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 transition-all focus:outline-none focus:border-green-500"
+              className="flex items-center gap-2 text-slate-900 dark:text-white font-medium bg-gray-100 dark:bg-[#1e293b] hover:bg-gray-200 dark:hover:bg-gray-800 px-2.5 sm:px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 transition-all focus:outline-none focus:border-green-500"
             >
               <FaUserCircle className="text-green-500 text-xl" />
 
-              <span>{sellerInfo?.shopName || 'My Store'}</span>
+              <span className="hidden sm:block max-w-[8rem] truncate">{sellerInfo?.shopName || 'My Store'}</span>
 
               <FaCaretDown
                 className={`text-gray-400 transition-transform duration-300 ${
@@ -337,7 +337,7 @@ const SellerDashboardHeader = () => {
 
             {/* DROPDOWN */}
             {dropdownOpen && (
-              <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50 animate-fade-in-up">
+              <div className="absolute right-0 mt-3 w-[min(16rem,calc(100vw-1.5rem))] bg-white dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col z-50 animate-fade-in-up">
 
                 <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0f172a]/50">
                   <p className="text-sm text-gray-500 dark:text-gray-400">

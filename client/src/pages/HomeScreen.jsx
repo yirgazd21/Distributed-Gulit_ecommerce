@@ -29,11 +29,11 @@ const HomeScreen = () => {
   };
 
   return (
-    <div className="space-y-16 pb-20">
+    <div className="space-y-10 sm:space-y-16 pb-16 sm:pb-20">
       {/* ... (Keep your Hero Section code from before) ... */}
 
       {/* 🏆 RECOMMENDED PRODUCTS */}
-      <div className="w-full mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8">
+      <div className="w-full mx-auto max-w-[1800px] px-3 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-end justify-between gap-4 mb-5">
             <div>
@@ -56,11 +56,11 @@ const HomeScreen = () => {
       </div>
 
       {/* 📦 DYNAMIC PRODUCT GRID */}
-      <div className="w-full mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8">
+      <div className="w-full mx-auto max-w-[1800px] px-3 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-8">
           <div>
             <span className="text-green-500 font-black text-sm uppercase tracking-[0.3em]">Fresh Market</span>
-            <h2 className="text-4xl font-black text-gray-900">
+            <h2 className="text-2xl sm:text-4xl font-black text-gray-900">
               {keyword ? `Search: ${keyword}` : 'Latest Arrivals'}
             </h2>
             <p className="text-sm font-semibold text-gray-500 mt-2">
@@ -73,7 +73,7 @@ const HomeScreen = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="min-w-48 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-green-500"
+                className="w-full sm:min-w-48 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-green-500"
               >
                 {PRODUCT_SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -84,7 +84,7 @@ const HomeScreen = () => {
             </label>
             {isPriceSort && (
               <div>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <label className="text-sm font-bold text-gray-500">
                     <span className="block mb-1">Min Price</span>
                     <input
@@ -93,7 +93,7 @@ const HomeScreen = () => {
                       value={priceRange.minPrice}
                       onChange={(e) => updatePriceRange('minPrice', e.target.value)}
                       placeholder="0"
-                      className="w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-green-500"
+                      className="w-full sm:w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-green-500"
                     />
                   </label>
                   <label className="text-sm font-bold text-gray-500">
@@ -104,7 +104,7 @@ const HomeScreen = () => {
                       value={priceRange.maxPrice}
                       onChange={(e) => updatePriceRange('maxPrice', e.target.value)}
                       placeholder="Any"
-                      className="w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-green-500"
+                      className="w-full sm:w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-green-500"
                     />
                   </label>
                 </div>
@@ -131,7 +131,7 @@ const HomeScreen = () => {
               : 'No products found.'}
           </div>
         ) : (
-          <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-5 xl:gap-6">
             {visibleProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}

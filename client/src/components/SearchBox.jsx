@@ -23,7 +23,7 @@ const SearchBox = () => {
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}
         placeholder="Search for items..." 
-        className="w-full bg-gray-50 border border-gray-200 rounded-full pl-5 pr-12 py-2.5 focus:border-green-400 focus:bg-white transition-all outline-none text-sm font-medium"
+        className="w-full bg-gray-50 border border-gray-200 rounded-full pl-4 sm:pl-5 pr-11 sm:pr-12 py-2.5 focus:border-green-400 focus:bg-white transition-all outline-none text-sm font-medium"
       />
       <button 
         type="submit" 

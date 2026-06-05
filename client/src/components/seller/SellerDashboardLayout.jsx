@@ -11,7 +11,7 @@ const SellerDashboardLayout = () => {
       <SellerDashboardHeader />
       
       {/* pt-28 gives breathing room below the fixed header for the workspace */}
-      <main className="flex-grow pt-28 pb-12 w-full px-4 sm:px-6 lg:px-8"> 
+      <main className="flex-grow pt-24 lg:pt-28 pb-10 sm:pb-12 w-full px-3 sm:px-6 lg:px-8"> 
         <div className="mx-auto flex w-full max-w-[96rem] gap-6">
           <SellerSidebar />
           <div className="min-w-0 flex-1">

@@ -45,7 +45,7 @@ const AccountMenu = () => {
       {/* 🟢 Trigger Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 hover:bg-gray-50 px-3 py-2 rounded-xl transition-all border border-transparent hover:border-gray-200"
+        className="flex items-center gap-1.5 sm:gap-2 hover:bg-gray-50 px-2 sm:px-3 py-2 rounded-xl transition-all border border-transparent hover:border-gray-200"
       >
         <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 border border-green-200">
            {/* Initials of user */}
@@ -60,7 +60,7 @@ const AccountMenu = () => {
 
       {/* 🔽 Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl shadow-gray-200 border border-gray-100 py-2 z-50 transform origin-top-right transition-all">
+        <div className="absolute right-0 mt-2 w-[min(15rem,calc(100vw-1.5rem))] bg-white rounded-2xl shadow-xl shadow-gray-200 border border-gray-100 py-2 z-50 transform origin-top-right transition-all">
           
           {/* Header inside dropdown */}
           <div className="px-4 py-3 border-b border-gray-50 mb-2">

@@ -14,7 +14,7 @@ const SellerWalletScreen = () => {
   const transactions = [...(data?.transactions || [])].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
   return (
-    <div className="w-full max-w-8xl mx-auto animate-fade-in-up pb-20">
+    <div className="w-full max-w-7xl mx-auto animate-fade-in-up pb-20">
       <div className="bg-[#1e293b] p-8 rounded-3xl border border-gray-700 shadow-xl mb-8">
         <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3 mb-4">
           <FaWallet className="text-green-400" /> Seller Wallet

@@ -9,14 +9,14 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors">
       <Header />
-      <div className="w-full mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8 pt-3">
+      <div className="w-full mx-auto max-w-[1800px] px-3 sm:px-6 lg:px-8 pt-3">
         <PlatformUpdatesBanner audience="buyer" />
       </div>
       
       {/* The Tibeb strip below the navbar */}
       <div className="h-1.5 bg-tibeb-pattern bg-repeat-x w-full"></div>
 
-      <main className="flex-grow w-full mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow w-full mx-auto max-w-[1800px] px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
         <Outlet />
       </main>
 

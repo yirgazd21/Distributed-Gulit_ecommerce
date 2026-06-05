@@ -90,9 +90,6 @@ app.use('/api/webhooks', webhookRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
-// ─── FRONTEND ────────────────────────────────────────────────────────────────
-// Frontend is served by Vite dev server on port 5173 only.
-// Port 3000 is API + uploads only.
 
 // ─── ENV CHECK ────────────────────────────────────────────────────────────────
 console.log('--- ENV CHECK ---');
@@ -116,5 +113,5 @@ app.use((err, req, res, next) => {
 // ─── START SERVER ─────────────────────────────────────────────────────────────
 server.listen(PORT, '0.0.0.0', (err) => {
   if (err) console.error(err);
-  console.log(`✅ Backend listening on PORT ${PORT} (ZeroTier + local network)`);
+  console.log(`✅ Backend listening on PORT ${PORT} `);
 });

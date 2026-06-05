@@ -26,7 +26,7 @@ const AdminSidebar = ({ activeKey }) => {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <aside className={`bg-[#0f172a] border border-white/10 rounded-2xl p-4 h-fit lg:sticky lg:top-24 transition-all duration-200 ${collapsed ? 'w-20' : 'w-full'}`}>
+    <aside className={`hidden lg:block bg-[#0f172a] border border-white/10 rounded-2xl p-4 h-fit lg:sticky lg:top-24 transition-all duration-200 ${collapsed ? 'w-20' : 'w-full'}`}>
       <div className="flex items-center justify-between mb-4">
         <button
           type="button"

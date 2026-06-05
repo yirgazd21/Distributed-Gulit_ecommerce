@@ -42,7 +42,7 @@ const BuyerSidebar = ({ activeKey }) => {
   };
 
   return (
-    <aside className={`hidden sm:block bg-white border border-white/10 rounded-2xl p-4 h-fit lg:sticky lg:top-24 transition-all duration-200 flex-shrink-0 ${collapsed ? 'w-20' : 'w-56'}`}>
+    <aside className={`hidden md:block bg-white border border-white/10 rounded-2xl p-4 h-fit lg:sticky lg:top-24 transition-all duration-200 flex-shrink-0 ${collapsed ? 'w-20' : 'w-56'}`}>
       <div className="flex items-center justify-between mb-4">
         <button
           type="button"

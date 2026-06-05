@@ -160,7 +160,7 @@ const SellerHeader = () => {
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
       
-      <div className="w-full h-16 md:h-18 px-3 sm:px-5 md:px-10 flex items-center justify-between">
+      <div className="w-full h-16 md:h-20 px-3 sm:px-5 md:px-10 flex items-center justify-between">
 
         {/* =====================================
             LEFT SIDE

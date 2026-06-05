@@ -38,8 +38,8 @@ const CategoryScreen = () => {
   const title = selectedSubcategory ? `${formattedCategory} / ${selectedSubcategory}` : formattedCategory;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="w-full mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-10 px-3 sm:px-4">
+      <div className="w-full mx-auto max-w-[1800px] px-0 sm:px-6 lg:px-8">
         
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -47,7 +47,7 @@ const CategoryScreen = () => {
             <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-red-500 font-bold mb-4 transition-colors">
               <FaArrowLeft size={12} /> Back to Market
             </Link>
-            <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight flex flex-wrap items-center gap-3">
                <span className="text-red-600 capitalize">{title}</span> Products
             </h1>
           </div>
@@ -60,7 +60,7 @@ const CategoryScreen = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="min-w-48 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-red-500"
+                className="w-full sm:min-w-48 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-red-500"
               >
                 {PRODUCT_SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -71,7 +71,7 @@ const CategoryScreen = () => {
             </label>
             {isPriceSort && (
               <div>
-                <div className="flex gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <label className="text-sm font-bold text-gray-500">
                     <span className="block mb-1">Min Price</span>
                     <input
@@ -80,7 +80,7 @@ const CategoryScreen = () => {
                       value={priceRange.minPrice}
                       onChange={(e) => updatePriceRange('minPrice', e.target.value)}
                       placeholder="0"
-                      className="w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-red-500"
+                      className="w-full sm:w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-red-500"
                     />
                   </label>
                   <label className="text-sm font-bold text-gray-500">
@@ -91,7 +91,7 @@ const CategoryScreen = () => {
                       value={priceRange.maxPrice}
                       onChange={(e) => updatePriceRange('maxPrice', e.target.value)}
                       placeholder="Any"
-                      className="w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-red-500"
+                      className="w-full sm:w-32 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-black text-gray-800 shadow-sm outline-none transition-colors focus:border-red-500"
                     />
                   </label>
                 </div>
@@ -133,7 +133,7 @@ const CategoryScreen = () => {
             <p className="text-gray-500">Try changing the minimum or maximum price.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-3 sm:gap-5">
             {visibleProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}

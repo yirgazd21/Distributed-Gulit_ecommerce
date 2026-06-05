@@ -278,7 +278,7 @@ const SellerSettingsScreen = () => {
   if (error) return <div className="text-red-500 font-bold p-8">{error?.data?.message || error.error}</div>;
 
   return (
-    <div className="w-full max-w-8xl mx-auto animate-fade-in-up pb-20">
+    <div className="w-full max-w-7xl mx-auto animate-fade-in-up pb-20">
       <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3 mb-8">
         <FaCog className="text-green-400" /> Shop Settings
       </h1>

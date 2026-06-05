@@ -330,14 +330,14 @@ const ProfileScreen = () => {
   return (
     <div className="min-h-screen bg-gray-50 ">
       <div className="w-full mx-auto px-3 sm:px-4 lg:px-2 py-2">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-5 sm:mb-8">
           My Account
         </h1>
 
         <div className="flex w-full gap-4 items-start">
           <BuyerSidebar activeKey={activeTab} />
 
-          <div className="space-y-6 flex-1">
+          <div className="space-y-6 flex-1 min-w-0">
             {/* Dashboard Tab — Platform Updates */}
             {activeTab === 'dashboard' && (
               <div className="bg-white rounded-2xl p-6 shadow-lg">
