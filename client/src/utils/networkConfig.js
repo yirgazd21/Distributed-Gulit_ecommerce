@@ -1,116 +1,80 @@
-const PRIMARY_URL = import.meta.env.VITE_API_BASE_URL;
-const FALLBACK_URL = import.meta.env.VITE_FALLBACK_API_URL;
+const normalizeUrl = (url) => String(url || '').replace(/\/$/, '');
 
-export const PEER_NODES = [
-PRIMARY_URL,
-FALLBACK_URL,
-].filter(Boolean);
+const PRIMARY_URL = normalizeUrl(import.meta.env.VITE_API_BASE_URL);
+const FALLBACK_URL = normalizeUrl(import.meta.env.VITE_FALLBACK_API_URL);
+
+export const PEER_NODES = [PRIMARY_URL, FALLBACK_URL].filter(Boolean);
+export const PRIMARY_BACKEND_URL = PEER_NODES[0] || '';
 
 const nodeHealthMap = new Map();
 const HEALTH_RESET_TIME = 30000;
 
-// Track node failures
 export const markNodeDown = (url) => {
-nodeHealthMap.set(url, {
-isDown: true,
-timestamp: Date.now(),
-});
+  if (!url) return;
+  nodeHealthMap.set(normalizeUrl(url), {
+    isDown: true,
+    timestamp: Date.now(),
+  });
 };
 
 export const markNodeUp = (url) => {
-nodeHealthMap.delete(url);
+  if (!url) return;
+  nodeHealthMap.delete(normalizeUrl(url));
 };
 
 export const isNodeHealthy = (url) => {
-const health = nodeHealthMap.get(url);
+  const normalizedUrl = normalizeUrl(url);
+  const health = nodeHealthMap.get(normalizedUrl);
 
-if (!health) return true;
+  if (!health) return true;
 
-if (Date.now() - health.timestamp > HEALTH_RESET_TIME) {
-nodeHealthMap.delete(url);
-return true;
-}
+  if (Date.now() - health.timestamp > HEALTH_RESET_TIME) {
+    nodeHealthMap.delete(normalizedUrl);
+    return true;
+  }
 
-return false === health.isDown;
+  return health.isDown === false;
 };
 
-// Get all currently healthy nodes
-export const getHealthyNodes = () => {
-return PEER_NODES.filter(isNodeHealthy);
+export const getHealthyNodes = () => PEER_NODES.filter(isNodeHealthy);
+
+export const getPreferredBackendUrl = () => {
+  const preferred = PEER_NODES.find(isNodeHealthy);
+  if (preferred) return preferred;
+
+  nodeHealthMap.clear();
+  return PRIMARY_BACKEND_URL;
 };
 
-// Random load distribution
-export const getRandomBackendUrl = () => {
-const healthyNodes = getHealthyNodes();
-
-if (healthyNodes.length === 0) {
-nodeHealthMap.clear();
-return PEER_NODES[0];
-}
-
-const randomIndex = Math.floor(
-Math.random() * healthyNodes.length
-);
-
-return healthyNodes[randomIndex];
-};
-
-// Active backend for current session
 export const getActiveBackendUrl = () => {
-let active = sessionStorage.getItem("activeBackendUrl");
+  let active = normalizeUrl(sessionStorage.getItem('activeBackendUrl'));
 
-if (!active || !isNodeHealthy(active)) {
-active = getRandomBackendUrl();
-sessionStorage.setItem(
-"activeBackendUrl",
-active
-);
-}
+  if (!active || !PEER_NODES.includes(active) || !isNodeHealthy(active)) {
+    active = getPreferredBackendUrl();
+    if (active) {
+      sessionStorage.setItem('activeBackendUrl', active);
+    }
+  }
 
-return active;
+  return active;
 };
 
-// Failover to another healthy node
 export const rotateBackendNode = (currentUrl) => {
-markNodeDown(currentUrl);
+  const current = normalizeUrl(currentUrl || getActiveBackendUrl());
+  markNodeDown(current);
 
-const healthyNodes = getHealthyNodes().filter(
-(node) => node !== currentUrl
-);
+  const nextNode = PEER_NODES.find((node) => node !== current && isNodeHealthy(node));
+  const selectedNode = nextNode || getPreferredBackendUrl();
 
-if (healthyNodes.length === 0) {
-nodeHealthMap.clear();
+  if (selectedNode) {
+    sessionStorage.setItem('activeBackendUrl', selectedNode);
+  }
 
-```
-const fallback = PEER_NODES[0];
+  window.dispatchEvent(new Event('backendRotated'));
 
-sessionStorage.setItem(
-  "activeBackendUrl",
-  fallback
-);
+  if (selectedNode && selectedNode !== current) {
+    console.warn(`Switched backend from ${current} to ${selectedNode}`);
+  }
 
-return fallback;
-```
-
-}
-
-const nextNode =
-healthyNodes[
-Math.floor(Math.random() * healthyNodes.length)
-];
-
-sessionStorage.setItem(
-"activeBackendUrl",
-nextNode
-);
-
-window.dispatchEvent(
-new Event("backendRotated")
-);
-
-console.warn(
-`Switched backend from ${currentUrl} to ${nextNode}`
-);
-
-return nextNode;
+  return selectedNode;
 };

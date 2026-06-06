@@ -6,7 +6,7 @@ import {
   useGetSellerProductsQuery, 
   useDeleteSellerProductMutation 
 } from '../../store/slices/sellerProductsApiSlice';
-import { BASE_URL } from '../../store/slices/apiSlice';
+import { buildMediaUrl, handleMediaError } from '../../utils/mediaUrl';
 
 const SellerProductListScreen = () => {
   const { data: products, isLoading, error, refetch } = useGetSellerProductsQuery();
@@ -113,9 +113,10 @@ const SellerProductListScreen = () => {
                     <tr key={product._id} className={`transition-colors group ${isOutOfStock ? 'bg-red-500/10 hover:bg-red-500/15' : 'hover:bg-white/5'}`}>
                       <td className="p-5 relative">
                         <img 
-                          src={`${BASE_URL}${product.image}`} 
+                          src={buildMediaUrl(product.image)}
                           alt={product.name} 
                           className="w-12 h-12 object-cover rounded-lg border border-gray-700 bg-[#0f172a]"
+                          onError={handleMediaError(product.image)}
                         />
                         {isOutOfStock && (
                           <div className="absolute -top-2 -right-2">

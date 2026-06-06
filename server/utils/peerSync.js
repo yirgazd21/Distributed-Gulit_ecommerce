@@ -27,7 +27,7 @@ const emitToAll = (io, event, payload = {}) => {
   io.emit(event, payload);
 
   // 2. Notify the peer server (fire-and-forget, never throws)
-  const peerBase = process.env.API_URL; // e.g. http://10.40.210.21:3000
+  const peerBase = process.env.PEER_API_URL || process.env.API_URL; // e.g. peer Render/Replit URL
   if (!peerBase) return;
 
   try {

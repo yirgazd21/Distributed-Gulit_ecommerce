@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaTimes, FaCheck, FaEye, FaBox, FaUndoAlt } from 'react-icons/fa';
 import { useGetSellerOrdersQuery } from '../../store/slices/sellerProductsApiSlice'; // Adjust path if needed
 import Loader from '../../components/Loader';
-import { BASE_URL } from '../../store/slices/apiSlice';
+import { buildMediaUrl, handleMediaError } from '../../utils/mediaUrl';
 import { useNavigate } from 'react-router-dom';
 
 const SellerOrderListScreen = () => {
@@ -96,9 +96,10 @@ const SellerOrderListScreen = () => {
                         <div className="flex items-center gap-3 min-w-56">
                           {firstItem?.image ? (
                             <img
-                              src={`${BASE_URL}${firstItem.image}`}
+                              src={buildMediaUrl(firstItem.image)}
                               alt={firstItem.name}
                               className="h-12 w-12 rounded-xl bg-white object-contain p-1"
+                              onError={handleMediaError(firstItem.image)}
                             />
                           ) : (
                             <div className="h-12 w-12 rounded-xl bg-white/10" />

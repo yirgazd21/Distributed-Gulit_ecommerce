@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { io } from 'socket.io-client';
 import { useDispatch, useSelector } from 'react-redux';
-import { getActiveBackendUrl } from './utils/networkConfig';
+import { getActiveBackendUrl, markNodeUp, rotateBackendNode } from './utils/networkConfig';
 import { loadCartFromDB } from './store/slices/cartSlice';
 import { usersApiSlice } from './store/slices/usersApiSlice';
 import { apiSlice } from './store/slices/apiSlice';
@@ -137,10 +137,15 @@ const App = () => {
 
     socket.on('connect', () => {
       console.log(`[Socket] Connected safely to: ${activeSocketUrl}`);
+      markNodeUp(activeSocketUrl);
     });
 
     socket.on('connect_error', (err) => {
       console.warn(`[Socket] Cannot reach ${activeSocketUrl} — retrying. Details:`, err.message);
+    });
+
+    socket.on('connect_error', () => {
+      rotateBackendNode(activeSocketUrl);
     });
 
     // ─── REAL-TIME PEER SYNC ─────────────────────────────────────────────────

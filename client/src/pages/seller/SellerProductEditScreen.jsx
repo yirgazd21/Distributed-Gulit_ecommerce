@@ -8,8 +8,7 @@ import {
   useGetSellerProductsQuery,
   useUploadProductImagesMutation 
 } from '../../store/slices/sellerProductsApiSlice';
-// 👇 FIX: Import BASE_URL
-import { BASE_URL } from '../../store/slices/apiSlice';
+import { buildMediaUrl, handleMediaError } from '../../utils/mediaUrl';
 import { useGetCategoriesQuery } from '../../store/slices/productsApiSlice';
 
 const SellerProductEditScreen = () => {
@@ -287,11 +286,10 @@ const SellerProductEditScreen = () => {
           </label>
           
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-4">
-            {/* 1. Show already uploaded images (Edit Mode) - NOW WITH BASE_URL */}
+            {/* 1. Show already uploaded images (Edit Mode) */}
             {uploadedImagePaths.map((path, index) => (
                  <div key={`uploaded-${index}`} className="relative group aspect-square bg-[#0f172a] rounded-xl border border-gray-700 overflow-hidden">
-                 {/* 👇 FIX: Prepend BASE_URL to existing database paths */}
-                 <img src={`${BASE_URL}${path}`} alt="Product" className="w-full h-full object-cover" />
+                 <img src={buildMediaUrl(path)} alt="Product" className="w-full h-full object-cover" onError={handleMediaError(path)} />
                  {index === 0 && <span className="absolute bottom-0 left-0 right-0 bg-green-500/80 text-white text-xs font-bold text-center py-1">Main</span>}
                  <button type="button" onClick={() => removeUploadedImage(index)} className="absolute top-1 right-1 bg-red-500/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
                    <FaTimesCircle />

@@ -10,6 +10,7 @@ const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const path = require('path');
 const uploadRoutes = require('./routes/uploadRoutes');
+const peerUploadFallback = require('./middleware/peerUploadFallback');
 const orderRoutes = require('./routes/orderRoutes');
 const sellerRoutes = require('./routes/sellerRoutes');
 const sellerProductRoutes = require('./routes/sellerProductRoutes');
@@ -89,6 +90,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+app.use('/uploads', peerUploadFallback);
 
 
 // ─── ENV CHECK ────────────────────────────────────────────────────────────────

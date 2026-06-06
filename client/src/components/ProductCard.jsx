@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../store/slices/cartSlice';
 import { toast } from 'react-toastify';
 import { FaHeart, FaRegHeart, FaShoppingCart, FaStar } from 'react-icons/fa';
-import { BASE_URL } from '../store/slices/apiSlice';
-import { getActiveBackendUrl } from '../utils/networkConfig';
+import { buildMediaUrl, handleMediaError } from '../utils/mediaUrl';
 import {
   useAddToFavoritesMutation,
   useGetUserFavoritesQuery,
@@ -109,24 +108,12 @@ const ProductCard = ({ product }) => {
       <Link to={`/product/${product._id}`} className="relative block h-40 bg-gray-50 dark:bg-slate-800 overflow-hidden">
         <img
           key={`product-card-img-${product._id}-${imageRefreshKey}`}
-          src={`${BASE_URL}${product.image}`}
+          src={buildMediaUrl(product.image)}
           alt={product.name}
           loading="lazy"
           decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          onError={(e) => {
-            const url1 = `${getActiveBackendUrl()}${product.image}`;
-            const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
-            const url2 = url2Base ? `${url2Base}${product.image}` : '';
-
-            if (e.target.src !== url1) {
-              e.target.src = url1;
-            } else if (url2 && e.target.src !== url2) {
-              e.target.src = url2;
-            } else {
-              e.target.src = '/placeholder.jpg';
-            }
-          }}
+          onError={handleMediaError(product.image)}
         />
 
         <button

@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { FaArrowLeft, FaBox, FaTruck, FaCheckCircle, FaTimesCircle, FaUser, FaMapMarkerAlt, FaSpinner, FaUndoAlt } from 'react-icons/fa';
 import { useGetSellerOrderDetailsQuery, useDeliverSellerOrderMutation, useUpdateSellerOrderStatusMutation, useCompleteSellerOrderRefundMutation, useRejectSellerOrderRefundMutation } from '../../store/slices/sellerProductsApiSlice';
 import Loader from '../../components/Loader';
-import { BASE_URL } from '../../store/slices/apiSlice';
+import { buildMediaUrl, handleMediaError } from '../../utils/mediaUrl';
 
 const SellerOrderDetailsScreen = () => {
   const { id: orderId } = useParams();
@@ -193,7 +193,7 @@ const SellerOrderDetailsScreen = () => {
             <div className="space-y-4">
               {(order.orderItems || []).map((item, index) => (
                 <div key={index} className="flex items-center gap-4 border-gray-200  p-4 rounded-2xl border border-gray-700/50">
-                  <img src={`${BASE_URL}${item.image}`} alt={item.name} className="w-16 h-16 object-contain  border-gray-200 rounded-xl  border-gray-200" />
+                  <img src={buildMediaUrl(item.image)} alt={item.name} className="w-16 h-16 object-contain  border-gray-200 rounded-xl  border-gray-200" onError={handleMediaError(item.image)} />
                   <div className="grow">
                     <Link to={`/product/${item.product}`} className="text-white font-bold hover:text-blue-400 transition-colors line-clamp-1">
                       {item.name}

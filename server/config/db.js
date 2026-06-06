@@ -15,6 +15,8 @@ const SyncQueue = require('../models/syncQueueModel');
 
 const PRIMARY_URI = process.env.MONGO_URI_A || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ecomerce';
 const CLUSTER_B_URI = process.env.MONGO_URI_B || null;
+const QUEUE_LOCK_TIMEOUT_MS = Number(process.env.SYNC_QUEUE_LOCK_TIMEOUT_MS || 120000);
+const SYNC_WORKER_ID = `${process.env.RENDER_SERVICE_NAME || process.env.REPL_SLUG || 'server'}-${process.pid}-${Date.now()}`;
 
 let currentMode = 'none'; // 'replica' | 'standalone' | 'none'
 let clusterBConnection = null;
@@ -100,6 +102,9 @@ const persistSyncTask = async (task) => {
     await queueModel.create({
       ...task,
       origin,
+      status: 'pending',
+      lockedBy: undefined,
+      lockedAt: undefined,
       attempts: 0,
       lastError: undefined,
     });
@@ -131,20 +136,44 @@ const scheduleSyncTask = async (task) => {
 const processSyncQueueFrom = async (sourceConn, targetConn) => {
   if (!isConnectionReady(sourceConn) || !isConnectionReady(targetConn)) return;
   const queueModel = getQueueModel(sourceConn);
-  const tasks = await queueModel.find({}).sort({ createdAt: 1 });
+  const staleLockDate = new Date(Date.now() - QUEUE_LOCK_TIMEOUT_MS);
 
-  for (const task of tasks) {
+  while (isConnectionReady(sourceConn) && isConnectionReady(targetConn)) {
+    const task = await queueModel.findOneAndUpdate(
+      {
+        $or: [
+          { status: { $exists: false } },
+          { status: 'pending' },
+          { status: 'processing', lockedAt: { $lt: staleLockDate } },
+        ],
+      },
+      {
+        $set: {
+          status: 'processing',
+          lockedBy: SYNC_WORKER_ID,
+          lockedAt: new Date(),
+        },
+      },
+      { sort: { createdAt: 1 }, new: true }
+    );
+
+    if (!task) return;
+
     try {
       await executeTaskOnConnection(task, targetConn);
-      await queueModel.deleteOne({ _id: task._id });
+      await queueModel.deleteOne({ _id: task._id, lockedBy: SYNC_WORKER_ID });
     } catch (err) {
       if (task.action === 'upsert' && err.code === 11000) {
-        await queueModel.deleteOne({ _id: task._id });
+        await queueModel.deleteOne({ _id: task._id, lockedBy: SYNC_WORKER_ID });
         continue;
       }
       await queueModel.updateOne(
-        { _id: task._id },
-        { $inc: { attempts: 1 }, lastError: err.message }
+        { _id: task._id, lockedBy: SYNC_WORKER_ID },
+        {
+          $inc: { attempts: 1 },
+          $set: { status: 'pending', lastError: err.message },
+          $unset: { lockedBy: '', lockedAt: '' },
+        }
       );
     }
   }
