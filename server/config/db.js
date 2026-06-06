@@ -154,7 +154,7 @@ const processSyncQueueFrom = async (sourceConn, targetConn) => {
           lockedAt: new Date(),
         },
       },
-      { sort: { createdAt: 1 }, new: true }
+      { sort: { createdAt: 1 }, returnDocument: 'after' }
     );
 
     if (!task) return;
