@@ -46,6 +46,18 @@ const getConnectionModel = (conn, modelName) => {
 
 const getQueueModel = (conn) => getConnectionModel(conn, 'SyncQueue');
 
+// Detect operations that were originated by the sync system (to avoid re-queueing)
+const isClusterBOperation = (context) => {
+  if (!context) return false;
+  // Plain task objects may carry the flag
+  if (context._skipClusterBSync) return true;
+  // Query/getOptions style
+  if (typeof context.getOptions === 'function' && context.getOptions()._skipClusterBSync) return true;
+  // Document save options
+  if (context.$__ && context.$__.saveOptions && context.$__.saveOptions._skipClusterBSync) return true;
+  return false;
+};
+
 const executeTaskOnConnection = async (task, conn) => {
   if (!conn || !isConnectionReady(conn)) {
     throw new Error('Target connection is not available');
