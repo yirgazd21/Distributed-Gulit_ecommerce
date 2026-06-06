@@ -9,6 +9,7 @@
  */
 
 const http = require('http');
+const https = require('https');
 
 // Secret shared between both servers so the /internal/sync endpoint
 // only accepts calls from a known peer (not the public internet).
@@ -35,7 +36,7 @@ const emitToAll = (io, event, payload = {}) => {
 
     const options = {
       hostname: url.hostname,
-      port: url.port || 3000,
+      port: url.port || (url.protocol === 'https:' ? 443 : 3000),
       path: url.pathname,
       method: 'POST',
       headers: {
@@ -45,7 +46,8 @@ const emitToAll = (io, event, payload = {}) => {
       },
     };
 
-    const req = http.request(options, (res) => {
+    const transport = url.protocol === 'https:' ? https : http;
+    const req = transport.request(options, (res) => {
       // drain the response so the socket closes cleanly
       res.resume();
     });

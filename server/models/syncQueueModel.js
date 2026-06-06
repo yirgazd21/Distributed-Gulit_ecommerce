@@ -7,6 +7,7 @@ const syncQueueSchema = new mongoose.Schema(
     query: { type: mongoose.Schema.Types.Mixed, required: true },
     payload: { type: mongoose.Schema.Types.Mixed },
     options: { type: mongoose.Schema.Types.Mixed },
+    origin: { type: String, enum: ['primary', 'secondary', 'unknown'], default: 'unknown' },
     attempts: { type: Number, default: 0 },
     lastError: { type: String },
   },

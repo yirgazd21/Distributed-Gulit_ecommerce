@@ -19,6 +19,7 @@ const CLUSTER_B_URI = process.env.MONGO_URI_B || null;
 let currentMode = 'none'; // 'replica' | 'standalone' | 'none'
 let clusterBConnection = null;
 let isProcessingQueue = false;
+let clusterBConnectPromise = null;
 
 const isConnectionReady = (conn) => conn && conn.readyState === 1;
 
@@ -128,7 +129,7 @@ const scheduleSyncTask = async (task) => {
 };
 
 const processSyncQueueFrom = async (sourceConn, targetConn) => {
-  if (!isConnectionReady(sourceConn) || !isConnectionReady(targetConn) || isProcessingQueue) return;
+  if (!isConnectionReady(sourceConn) || !isConnectionReady(targetConn)) return;
   const queueModel = getQueueModel(sourceConn);
   const tasks = await queueModel.find({}).sort({ createdAt: 1 });
 
@@ -179,6 +180,10 @@ const connectClusterB = async () => {
     return;
   }
 
+  if (isConnectionReady(clusterBConnection)) return clusterBConnection;
+  if (clusterBConnectPromise) return clusterBConnectPromise;
+
+  clusterBConnectPromise = (async () => {
   try {
     clusterBConnection = await mongoose.createConnection(CLUSTER_B_URI, {
       bufferCommands: false,
@@ -202,58 +207,59 @@ const connectClusterB = async () => {
       console.log('[DB] Secondary MongoDB reconnected — processing queued sync tasks');
       await processSyncQueues();
     });
+    return clusterBConnection;
   } catch (err) {
     console.error('[DB] Failed to connect secondary MongoDB:', err.message);
     setTimeout(connectClusterB, 10000);
+    return null;
+  } finally {
+    clusterBConnectPromise = null;
   }
+  })();
+
+  return clusterBConnectPromise;
 };
 
 const clusterBSyncPlugin = (schema) => {
-  const queueUpsert = (doc) => {
+  const queueUpsert = async (doc) => {
     if (!doc || isClusterBOperation(doc)) return;
     if (doc.constructor.modelName === 'SyncQueue') return;
-    scheduleSyncTask({
+    await scheduleSyncTask({
       modelName: doc.constructor.modelName,
       action: 'upsert',
       query: { _id: doc._id },
       payload: doc.toObject({ depopulate: true }),
-    }).catch((err) => {
-      console.error('[DB] Failed to queue sync task:', err.message);
     });
   };
 
-  schema.post('save', function (doc) {
-    queueUpsert(doc);
+  schema.post('save', async function (doc) {
+    await queueUpsert(doc);
   });
 
-  schema.post('remove', function (doc) {
+  schema.post('remove', async function (doc) {
     if (!doc || isClusterBOperation(doc)) return;
-    scheduleSyncTask({
+    await scheduleSyncTask({
       modelName: doc.constructor.modelName,
       action: 'deleteOne',
       query: { _id: doc._id },
-    }).catch((err) => {
-      console.error('[DB] Failed to queue sync delete task:', err.message);
     });
   });
 
-  schema.post('deleteOne', { document: true, query: false }, function () {
+  schema.post('deleteOne', { document: true, query: false }, async function () {
     if (isClusterBOperation(this) || this.constructor.modelName === 'SyncQueue') return;
-    scheduleSyncTask({
+    await scheduleSyncTask({
       modelName: this.constructor.modelName,
       action: 'deleteOne',
       query: { _id: this._id },
-    }).catch((err) => {
-      console.error('[DB] Failed to queue sync delete task:', err.message);
     });
   });
 
-  schema.post('insertMany', function (docs) {
+  schema.post('insertMany', async function (docs) {
     if (!Array.isArray(docs)) return;
-    docs.forEach((doc) => queueUpsert(doc));
+    await Promise.all(docs.map((doc) => queueUpsert(doc)));
   });
 
-  const postQueryHandler = function () {
+  const postQueryHandler = async function () {
     if (isClusterBOperation(this) || this.model.modelName === 'SyncQueue') return;
     const actionMap = {
       updateOne: 'updateOne',
@@ -265,39 +271,33 @@ const clusterBSyncPlugin = (schema) => {
     const action = actionMap[this.op];
     if (!action) return;
 
-    scheduleSyncTask({
+    await scheduleSyncTask({
       modelName: this.model.modelName,
       action,
       query: this.getQuery(),
       payload: this.getUpdate(),
       options: this.getOptions(),
-    }).catch((err) => {
-      console.error(`[DB] Failed to queue sync task for ${this.model.modelName}:`, err.message);
     });
   };
 
   schema.post(['updateOne', 'updateMany', 'deleteOne', 'deleteMany'], postQueryHandler);
 
-  const postFindOneHandler = function () {
+  const postFindOneHandler = async function () {
     if (isClusterBOperation(this) || this.model.modelName === 'SyncQueue') return;
     const op = this.op;
     if (op === 'findOneAndUpdate' || op === 'findOneAndReplace') {
-      scheduleSyncTask({
+      await scheduleSyncTask({
         modelName: this.model.modelName,
         action: 'updateOne',
         query: this.getQuery(),
         payload: this.getUpdate(),
         options: this.getOptions(),
-      }).catch((err) => {
-        console.error(`[DB] Failed to queue sync update task for ${this.model.modelName}:`, err.message);
       });
     } else if (op === 'findOneAndDelete' || op === 'findOneAndRemove') {
-      scheduleSyncTask({
+      await scheduleSyncTask({
         modelName: this.model.modelName,
         action: 'deleteOne',
         query: this.getQuery(),
-      }).catch((err) => {
-        console.error(`[DB] Failed to queue sync delete task for ${this.model.modelName}:`, err.message);
       });
     }
   };
@@ -323,9 +323,15 @@ const connectDB = async () => {
     currentMode = 'replica';
     console.log(`✅ [DB] Primary MongoDB connected: ${conn.connection.host}`);
     await connectClusterB();
+    await processSyncQueues();
     return;
   } catch (primaryErr) {
     currentMode = 'none';
+    await connectClusterB();
+    if (isConnectionReady(clusterBConnection)) {
+      currentMode = 'standalone';
+      console.warn('[DB] Running on secondary MongoDB until primary recovers');
+    }
     console.error(`❌ [DB] Primary MongoDB connection failed: ${primaryErr.message}`);
     console.error('❌ [DB] Retrying primary connection in 5 seconds...');
     setTimeout(() => connectDB(), 5000);
@@ -343,6 +349,9 @@ mongoose.connection.on('disconnected', () => {
 mongoose.connection.on('reconnected', () => {
   console.log(`✅ [DB] Primary reconnected: ${mongoose.connection.host}`);
   currentMode = 'replica';
+  processSyncQueues().catch((err) => {
+    console.error('[DB] Failed to process sync queues after primary reconnect:', err.message);
+  });
 });
 
 const startReconnectWatcher = () => {
