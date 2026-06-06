@@ -16,5 +16,6 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const Category = mongoose.model('Category', categorySchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const Category = createProxiedModel('Category', categorySchema);
 module.exports = Category;

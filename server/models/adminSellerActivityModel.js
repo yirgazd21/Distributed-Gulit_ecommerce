@@ -47,5 +47,6 @@ const adminSellerActivitySchema = mongoose.Schema(
 
 adminSellerActivitySchema.index({ seller: 1, createdAt: -1 });
 
-const AdminSellerActivity = mongoose.model('AdminSellerActivity', adminSellerActivitySchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const AdminSellerActivity = createProxiedModel('AdminSellerActivity', adminSellerActivitySchema);
 module.exports = AdminSellerActivity;

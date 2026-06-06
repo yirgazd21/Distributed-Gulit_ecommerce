@@ -137,6 +137,7 @@ sellerSettingsSchema.index(
   }
 );
 
-const SellerSettings = mongoose.model('SellerSettings', sellerSettingsSchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const SellerSettings = createProxiedModel('SellerSettings', sellerSettingsSchema);
 
 module.exports = SellerSettings;

@@ -82,6 +82,7 @@ const supportThreadSchema = mongoose.Schema(
 supportThreadSchema.index({ seller: 1, lastMessageAt: -1 });
 supportThreadSchema.index({ threadType: 1, lastMessageAt: -1 });
 
-const SupportThread = mongoose.model('SupportThread', supportThreadSchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const SupportThread = createProxiedModel('SupportThread', supportThreadSchema);
 
 module.exports = SupportThread;

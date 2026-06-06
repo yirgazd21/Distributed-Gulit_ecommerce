@@ -92,5 +92,6 @@ userSchema.pre('save', async function () {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-const User = mongoose.model('User', userSchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const User = createProxiedModel('User', userSchema);
 module.exports = User;

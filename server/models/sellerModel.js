@@ -69,5 +69,6 @@ sellerSchema.pre('save', async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-const Seller = mongoose.model('Seller', sellerSchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const Seller = createProxiedModel('Seller', sellerSchema);
 module.exports = Seller;

@@ -84,5 +84,6 @@ const productSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-const Product = mongoose.model('Product', productSchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const Product = createProxiedModel('Product', productSchema);
 module.exports = Product;

@@ -47,6 +47,7 @@ const platformUpdateSchema = mongoose.Schema(
 
 platformUpdateSchema.index({ audience: 1, isActive: 1, startAt: -1 });
 
-const PlatformUpdate = mongoose.model('PlatformUpdate', platformUpdateSchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const PlatformUpdate = createProxiedModel('PlatformUpdate', platformUpdateSchema);
 
 module.exports = PlatformUpdate;

@@ -35,6 +35,7 @@ const sellerWalletTransactionSchema = mongoose.Schema(
 
 sellerWalletTransactionSchema.index({ seller: 1, order: 1, type: 1 }, { unique: true });
 
-const SellerWalletTransaction = mongoose.model('SellerWalletTransaction', sellerWalletTransactionSchema);
+const { createProxiedModel } = require('../config/connectionManager');
+const SellerWalletTransaction = createProxiedModel('SellerWalletTransaction', sellerWalletTransactionSchema);
 
 module.exports = SellerWalletTransaction;
