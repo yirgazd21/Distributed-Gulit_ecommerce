@@ -51,7 +51,7 @@ connectDB();
 startReconnectWatcher();
 
 app.get('/', (req, res) => {
-    res.status(200).send('Backend is running');
+    res.status(200).send('Backend is running on cluster A');
 });
 
 // ─── INTERNAL PEER-SYNC ENDPOINT ─────────────────────────────────────────────
