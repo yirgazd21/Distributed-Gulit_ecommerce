@@ -4,6 +4,7 @@ const SellerWalletTransaction = require('../models/sellerWalletTransactionModel'
 const crypto = require('crypto');
 const { verifyGoogleCredential } = require('../utils/googleAuth');
 const { sendEmail } = require('../utils/emailService');
+const { uploadBuffer, isConfigured } = require('../utils/cloudinary');
 
 // @desc    Register a new seller (with KYC documents)
 // @route   POST /api/sellers
@@ -39,11 +40,34 @@ const registerSeller = async (req, res) => {
       return res.status(400).json({ message: 'All KYC documents are required (ID, License, Tax Receipt)' });
     }
 
-    // 2. Extract the file paths to save to the database
-    // Multer uses backslashes on Windows, so we replace them with forward slashes for web URLs
-    const idCardImage = req.files.idCardImage[0].path.replace(/\\/g, '/');
-    const merchantLicenseImage = req.files.merchantLicenseImage[0].path.replace(/\\/g, '/');
-    const taxReceiptImage = req.files.taxReceiptImage[0].path.replace(/\\/g, '/');
+    if (!isConfigured) {
+      return res.status(500).json({ message: 'Cloudinary is not configured' });
+    }
+
+    const [idCardUpload, merchantLicenseUpload, taxReceiptUpload] = await Promise.all([
+      uploadBuffer({
+        buffer: req.files.idCardImage[0].buffer,
+        folder: 'gulit/seller-docs',
+        resourceType: 'auto',
+        publicId: `id-card-${Date.now()}-${crypto.randomUUID()}`,
+      }),
+      uploadBuffer({
+        buffer: req.files.merchantLicenseImage[0].buffer,
+        folder: 'gulit/seller-docs',
+        resourceType: 'auto',
+        publicId: `merchant-license-${Date.now()}-${crypto.randomUUID()}`,
+      }),
+      uploadBuffer({
+        buffer: req.files.taxReceiptImage[0].buffer,
+        folder: 'gulit/seller-docs',
+        resourceType: 'auto',
+        publicId: `tax-receipt-${Date.now()}-${crypto.randomUUID()}`,
+      }),
+    ]);
+
+    const idCardImage = idCardUpload.secure_url;
+    const merchantLicenseImage = merchantLicenseUpload.secure_url;
+    const taxReceiptImage = taxReceiptUpload.secure_url;
 
     // 3. Check if seller already exists by email OR shop name
     const sellerExists = await Seller.findOne({ $or: [{ email: resolvedEmail }, { shopName }] });
