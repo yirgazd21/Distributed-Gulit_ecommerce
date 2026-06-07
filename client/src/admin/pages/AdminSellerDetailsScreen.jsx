@@ -29,7 +29,7 @@ import {
   useAdminGetSellerTransactionsQuery,
   useAdminUpdateSellerStatusMutation,
 } from '../slices/adminApiSlice';
-import { BASE_URL } from '../../store/slices/apiSlice';
+import { buildMediaUrl } from '../../utils/mediaUrl';
 
 const tabs = [
   { key: 'overview', label: 'Overview' },
@@ -42,8 +42,7 @@ const tabs = [
 
 const fileUrl = (path) => {
   if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  return `${BASE_URL}/${String(path).replace(/^\/+/, '')}`;
+  return buildMediaUrl(path);
 };
 
 const currency = (value) =>

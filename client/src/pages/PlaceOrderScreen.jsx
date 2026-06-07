@@ -8,8 +8,7 @@ import CheckoutSteps from '../components/CheckoutSteps';
 import { toast } from 'react-toastify';
 import { FaMapMarkerAlt, FaCreditCard, FaShoppingBag } from 'react-icons/fa';
 import Loader from '../components/Loader';
-import { BASE_URL } from '../store/slices/apiSlice';
-import { getActiveBackendUrl } from '../utils/networkConfig';
+import { buildMediaUrl, handleMediaError } from '../utils/mediaUrl';
 
 const PlaceOrderScreen = () => {
   const navigate = useNavigate();
@@ -319,22 +318,10 @@ const PlaceOrderScreen = () => {
                   <div className="flex gap-3 items-center">
                     <img
                       key={`place-order-img-${i}-${imageRefreshKey}`}
-                      src={`${BASE_URL}${item.image}`}
+                      src={buildMediaUrl(item.image)}
                       className="w-12 h-12 rounded object-cover"
                       alt={item.name || 'Product'}
-                      onError={(e) => {
-                        const url1 = item.image?.startsWith('http') ? item.image : `${getActiveBackendUrl()}${item.image}`;
-                        const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
-                        const url2 = url2Base ? `${url2Base}${item.image}` : '';
-
-                        if (e.target.src !== url1) {
-                          e.target.src = url1;
-                        } else if (url2 && e.target.src !== url2) {
-                          e.target.src = url2;
-                        } else {
-                          e.target.src = '/placeholder.jpg';
-                        }
-                      }}
+                      onError={handleMediaError(item.image)}
                     />
                     <Link to={`/product/${item._id}`} className="hover:underline text-gray-800 font-medium">
                       {item.name || 'Product'}

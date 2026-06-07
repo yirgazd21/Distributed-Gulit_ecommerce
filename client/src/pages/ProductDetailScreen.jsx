@@ -17,8 +17,7 @@ import {
   FaTag
 } from 'react-icons/fa';
 // 👇 IMPORTANT: Make sure this import path is correct for your project structure
-import { BASE_URL } from '../store/slices/apiSlice';
-import { getActiveBackendUrl } from '../utils/networkConfig';
+import { buildMediaUrl, handleMediaError } from '../utils/mediaUrl';
 
 const ProductDetailScreen = () => {
   const { id: productId } = useParams();
@@ -137,22 +136,10 @@ const ProductDetailScreen = () => {
                 {/* 👇 FIX: Ensure BASE_URL is prepended */}
                 <img
                   key={`main-img-${imageRefreshKey}`}
-                  src={`${BASE_URL}${currentDisplayImage}`}
+                  src={buildMediaUrl(currentDisplayImage)}
                   alt={product.name}
                   className="w-full h-full object-contain p-4 transition-all duration-300"
-                  onError={(e) => {
-                    const url1 = `${getActiveBackendUrl()}${currentDisplayImage}`;
-                    const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
-                    const url2 = url2Base ? `${url2Base}${currentDisplayImage}` : '';
-
-                    if (e.target.src !== url1) {
-                      e.target.src = url1;
-                    } else if (url2 && e.target.src !== url2) {
-                      e.target.src = url2;
-                    } else {
-                      e.target.src = '/placeholder.jpg';
-                    }
-                  }}
+                  onError={handleMediaError(currentDisplayImage)}
                 />
               </div>
 
@@ -169,22 +156,10 @@ const ProductDetailScreen = () => {
                       {/* 👇 FIX: Ensure BASE_URL is prepended to thumbnails too */}
                       <img
                         key={`thumb-img-${index}-${imageRefreshKey}`}
-                        src={`${BASE_URL}${imgPath}`}
+                        src={buildMediaUrl(imgPath)}
                         alt={`thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const url1 = `${getActiveBackendUrl()}${imgPath}`;
-                          const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
-                          const url2 = url2Base ? `${url2Base}${imgPath}` : '';
-
-                          if (e.target.src !== url1) {
-                            e.target.src = url1;
-                          } else if (url2 && e.target.src !== url2) {
-                            e.target.src = url2;
-                          } else {
-                            e.target.src = '/placeholder.jpg';
-                          }
-                        }}
+                        onError={handleMediaError(imgPath)}
                       />
                     </button>
                   ))}

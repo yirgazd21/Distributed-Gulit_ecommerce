@@ -19,8 +19,7 @@ import {
   FaTimesCircle
 } from 'react-icons/fa';
 
-import { BASE_URL } from '../store/slices/apiSlice';
-import { getActiveBackendUrl } from '../utils/networkConfig';
+import { buildMediaUrl, handleMediaError } from '../utils/mediaUrl';
 import { useInitializeChapaPaymentMutation } from '../store/slices/ordersApiSlice';
 
 const OrderScreen = () => {
@@ -221,26 +220,10 @@ const OrderScreen = () => {
                       <Link to={`/product/${item.product}`}>
                         <img
                           key={`order-img-${i}-${imageRefreshKey}`}
-                          src={
-                            item.image?.startsWith('http')
-                              ? item.image
-                              : `${BASE_URL}${item.image}`
-                          }
+                          src={buildMediaUrl(item.image)}
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-xl border border-gray-200 dark:border-slate-700 hover:scale-105 transition-transform"
-                          onError={(e) => {
-                            const url1 = item.image?.startsWith('http') ? item.image : `${getActiveBackendUrl()}${item.image}`;
-                            const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
-                            const url2 = url2Base ? `${url2Base}${item.image}` : '';
-
-                            if (e.target.src !== url1) {
-                              e.target.src = url1;
-                            } else if (url2 && e.target.src !== url2) {
-                              e.target.src = url2;
-                            } else {
-                              e.target.src = '/placeholder.jpg';
-                            }
-                          }}
+                          onError={handleMediaError(item.image)}
                         />
                       </Link>
 

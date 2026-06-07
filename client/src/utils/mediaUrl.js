@@ -1,9 +1,38 @@
 import { PEER_NODES, getActiveBackendUrl } from './networkConfig';
 
+const normalizeUrl = (url) => String(url || '').replace(/\/$/, '');
+
+const getKnownOrigins = () => new Set(PEER_NODES.map(normalizeUrl));
+
+const isBackendLikeHost = (host = '') =>
+  /(?:\.?onrender(?:\.com)?|\.?replit(?:\.app|\.dev)?|localhost|127\.0\.0\.1)/i.test(String(host || ''));
+
+const stripKnownBackendOrigin = (value) => {
+  const rawValue = String(value || '');
+  if (!rawValue) return '';
+
+  if (!/^https?:\/\//i.test(rawValue)) {
+    return rawValue;
+  }
+
+  try {
+    const parsed = new URL(rawValue);
+    const origin = `${parsed.protocol}//${parsed.host}`;
+    if (getKnownOrigins().has(origin) || isBackendLikeHost(parsed.hostname)) {
+      return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    }
+  } catch (_) {
+    return rawValue;
+  }
+
+  return rawValue;
+};
+
 const normalizePath = (path) => {
   if (!path) return '';
-  if (String(path).startsWith('http')) return String(path);
-  return `/${String(path).replace(/^\/+/, '')}`;
+  const strippedPath = stripKnownBackendOrigin(path);
+  if (String(strippedPath).startsWith('http')) return String(strippedPath);
+  return `/${String(strippedPath).replace(/^\/+/, '')}`;
 };
 
 export const buildMediaUrl = (path, baseUrl = getActiveBackendUrl()) => {

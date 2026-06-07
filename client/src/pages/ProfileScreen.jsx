@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { FaUser, FaBoxOpen, FaMapMarkerAlt, FaTimes, FaHeart, FaHistory, FaHome, FaRegHeart, FaCreditCard, FaUndoAlt, FaCamera, FaTrashAlt, FaBullhorn } from 'react-icons/fa';
 import { useGetMyOrdersQuery, useRequestOrderRefundMutation } from '../store/slices/ordersApiSlice';
-import { BASE_URL } from '../store/slices/apiSlice';
+import { buildMediaUrl } from '../utils/mediaUrl';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useGetPlatformUpdatesQuery } from '../store/slices/platformApiSlice';
@@ -106,7 +106,7 @@ const ProfileScreen = () => {
 
       // Set profile image if exists
       if (userInfo.profileImage) {
-        setProfileImagePreview(`${BASE_URL}${userInfo.profileImage}`);
+        setProfileImagePreview(buildMediaUrl(userInfo.profileImage));
       }
 
       const savedAddress = userInfo.address || shippingAddress || {};
@@ -440,7 +440,7 @@ const ProfileScreen = () => {
                                     className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
                                   >
                                     <img
-                                      src={item.image}
+                                      src={buildMediaUrl(item.image)}
                                       alt={item.name}
                                       className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                                     />
@@ -626,9 +626,7 @@ const ProfileScreen = () => {
                         .map((order) => {
                           const firstItem = order.orderItems?.[0];
                           const itemCount = order.orderItems?.length || 0;
-                          const imageUrl = firstItem?.image?.startsWith('http')
-                            ? firstItem.image
-                            : `${BASE_URL}${firstItem?.image || ''}`;
+                          const imageUrl = buildMediaUrl(firstItem?.image);
 
                           const refundStatusText = order.refundStatus === 'requested'
                             ? 'Refund request sent'
@@ -788,7 +786,7 @@ const ProfileScreen = () => {
                           <div key={item.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
                             <div className="h-32 mb-3 overflow-hidden rounded-lg">
                               <img
-                                src={item.image}
+                                src={buildMediaUrl(item.image)}
                                 alt={item.name}
                                 className="w-full h-full object-cover"
                               />
@@ -839,7 +837,7 @@ const ProfileScreen = () => {
                           <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div className="flex items-center gap-4">
                               <img
-                                src={item.image}
+                                src={buildMediaUrl(item.image)}
                                 alt={item.name}
                                 className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                               />
@@ -904,7 +902,7 @@ const ProfileScreen = () => {
                       <div key={item.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-4">
                           <img
-                            src={item.image}
+                            src={buildMediaUrl(item.image)}
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                           />
@@ -962,7 +960,7 @@ const ProfileScreen = () => {
                       <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                         {profileImagePreview || userInfo?.profileImage ? (
                           <img
-                            src={profileImagePreview || `${BASE_URL}${userInfo.profileImage}`}
+                            src={profileImagePreview || buildMediaUrl(userInfo.profileImage)}
                             alt="Profile"
                             className="w-full h-full object-cover"
                           />

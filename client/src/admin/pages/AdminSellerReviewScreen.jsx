@@ -17,9 +17,9 @@ import { toast } from 'react-toastify';
 import logo from '../../assets/gulit.png';
 import { adminLogout } from '../slices/adminAuthSlice';
 import { useAdminGetSellersQuery, useAdminUpdateSellerStatusMutation } from '../slices/adminApiSlice';
-import { BASE_URL } from '../../store/slices/apiSlice';
 import AdminSidebar from '../components/AdminSidebar';
 import ThemeToggle from '../../components/ThemeToggle';
+import { buildMediaUrl } from '../../utils/mediaUrl';
 
 const categories = ['all', 'Electronics', 'Clothing', 'Home & Kitchen', 'Books', 'Beauty', 'Other'];
 const countries = ['all', 'Ethiopia'];
@@ -43,8 +43,7 @@ const sortOptions = [
 
 const fileUrl = (path) => {
   if (!path) return '';
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  return `${BASE_URL}/${String(path).replace(/^\/+/, '')}`;
+  return buildMediaUrl(path);
 };
 
 const currency = (value) =>

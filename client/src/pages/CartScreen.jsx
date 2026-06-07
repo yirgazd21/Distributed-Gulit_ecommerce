@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaTrash, FaArrowLeft, FaShoppingBag, FaTag } from 'react-icons/fa';
 import { addToCart, removeFromCart, savePaymentMethod } from '../store/slices/cartSlice';
 import { toast } from 'react-toastify';
-import { BASE_URL } from '../store/slices/apiSlice';
-import { getActiveBackendUrl } from '../utils/networkConfig';
+import { buildMediaUrl, handleMediaError } from '../utils/mediaUrl';
 import { useAddToCartDBMutation, useRemoveFromCartDBMutation } from '../store/slices/usersApiSlice';
 
 const CartScreen = () => {
@@ -127,26 +126,14 @@ const CartScreen = () => {
                       <div className="flex items-center gap-4 w-full md:w-auto">
                         <img
                           key={`cart-img-${item.cartItemId || item._id}-${imageRefreshKey}`}
-                          src={`${BASE_URL}${item.image}`}
+                          src={buildMediaUrl(item.image)}
                           alt={item.name}
                           loading="lazy"
                           decoding="async"
                           width="72"
                           height="72"
                           className="w-16 h-16 md:w-20 md:h-20 object-contain p-1 rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700"
-                          onError={(e) => {
-                            const url1 = `${getActiveBackendUrl()}${item.image}`;
-                            const url2Base = (import.meta.env.VITE_FALLBACK_API_URL || '').replace(/\/$/, '');
-                            const url2 = url2Base ? `${url2Base}${item.image}` : '';
-
-                            if (e.target.src !== url1) {
-                              e.target.src = url1;
-                            } else if (url2 && e.target.src !== url2) {
-                              e.target.src = url2;
-                            } else {
-                              e.target.src = '/placeholder.jpg';
-                            }
-                          }}
+                          onError={handleMediaError(item.image)}
                         />
                         <div>
                           <Link to={`/product/${item._id}`} className="text-lg font-bold text-gray-800 dark:text-slate-100 hover:text-red-500 transition-colors block mb-1">

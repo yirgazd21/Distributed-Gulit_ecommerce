@@ -8,7 +8,7 @@ import {
   useUpdateSellerSettingsMutation,
 } from '../../store/slices/sellersApiSlice';
 import { useUploadProductImagesMutation } from '../../store/slices/sellerProductsApiSlice';
-import { BASE_URL } from '../../store/slices/apiSlice';
+import { buildMediaUrl } from '../../utils/mediaUrl';
 
 const defaultForm = {
   basicShopInfo: {
@@ -325,7 +325,7 @@ const SellerSettingsScreen = () => {
                 <FaCloudUploadAlt /> Upload Logo
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadSingleImage(e.target.files?.[0], (path) => setField('basicShopInfo', 'shopLogo', path))} />
               </label>
-              {form.basicShopInfo.shopLogo && <img src={`${BASE_URL}${form.basicShopInfo.shopLogo}`} alt="Logo" className="mt-3 w-20 h-20 object-cover rounded-lg border border-gray-600" />}
+              {form.basicShopInfo.shopLogo && <img src={buildMediaUrl(form.basicShopInfo.shopLogo)} alt="Logo" className="mt-3 w-20 h-20 object-cover rounded-lg border border-gray-600" />}
             </div>
             <div>
               <p className="text-sm font-bold text-gray-400 mb-2">Shop Banner</p>
@@ -333,7 +333,7 @@ const SellerSettingsScreen = () => {
                 <FaCloudUploadAlt /> Upload Banner
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => uploadSingleImage(e.target.files?.[0], (path) => setField('basicShopInfo', 'shopBanner', path))} />
               </label>
-              {form.basicShopInfo.shopBanner && <img src={`${BASE_URL}${form.basicShopInfo.shopBanner}`} alt="Banner" className="mt-3 w-full h-24 object-cover rounded-lg border border-gray-600" />}
+              {form.basicShopInfo.shopBanner && <img src={buildMediaUrl(form.basicShopInfo.shopBanner)} alt="Banner" className="mt-3 w-full h-24 object-cover rounded-lg border border-gray-600" />}
             </div>
           </div>
         </section>
@@ -384,7 +384,7 @@ const SellerSettingsScreen = () => {
             </label>
             <div className="mt-3 flex flex-wrap gap-2">
               {(form.businessInfo.identityVerificationDocuments || []).map((doc, idx) => (
-                <a key={`${doc}-${idx}`} href={`${BASE_URL}${doc}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 bg-[#0f172a] border border-gray-700 rounded text-blue-300">
+                <a key={`${doc}-${idx}`} href={buildMediaUrl(doc)} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 bg-[#0f172a] border border-gray-700 rounded text-blue-300">
                   Document {idx + 1}
                 </a>
               ))}
