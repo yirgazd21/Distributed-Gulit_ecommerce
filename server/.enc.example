@@ -1,0 +1,45 @@
+# render
+
+API_URL=https://gulit-ecommerce.onrender.com
+BASE_URL=https://gulit-ecommerce.onrender.com
+FRONTEND_URL=https://your-vercel-frontend.vercel.app
+PEER_API_URL=https://your-replit-backend.replit.app
+
+# On replit
+
+API_URL=https://your-replit-backend.replit.app
+BASE_URL=https://your-replit-backend.replit.app
+FRONTEND_URL=https://your-vercel-frontend.vercel.app
+PEER_API_URL=https://gulit-ecommerce.onrender.com
+
+
+# Common variables
+
+MONGO_URI_A=mongodb+srv://user:password@cluster-a.mongodb.net/Gulit-Ecommerce?retryWrites=true&w=majority
+MONGO_URI_B=mongodb+srv://user:password@cluster-b.mongodb.net/Gulit-Ecommerce?retryWrites=true&w=majority
+
+JWT_SECRET=your_jwt_secret
+INTERNAL_SYNC_SECRET=your_internal_sync_secret
+WEBHOOK_SECRET=your_webhook_secret
+
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM_EMAIL=your-email@gmail.com
+
+BUYER_RESET_URL=https://your-vercel-frontend.vercel.app/forgot-password
+SELLER_RESET_URL=https://your-vercel-frontend.vercel.app/seller/reset-password
+ADMIN_RESET_URL=https://your-vercel-frontend.vercel.app/admin/reset-password
+
+CHAPA_SECRET_KEY=CHASECK_TEST_your_secret_key
+CHAPA_PUBLIC_KEY=CHAPUBK_TEST_your_public_key
+CHAPA_ENCRYPTION_KEY=your_chapa_encryption_key
+CHAPA_WEBHOOK_SECRET=your_chapa_webhook_secret
+CHAPA_API_HOST=https://api.chapa.co
+
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+
+SYNC_QUEUE_LOCK_TIMEOUT_MS=120000
