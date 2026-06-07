@@ -11,6 +11,18 @@ const {
 
 dotenv.config();
 
+// Preload model schemas so populate can resolve refs on both Mongo connections.
+require('../models/userModel');
+require('../models/productModel');
+require('../models/orderModel');
+require('../models/sellerModel');
+require('../models/sellerSettingsModel');
+require('../models/sellerWalletTransactionModel');
+require('../models/supportThreadModel');
+require('../models/categoryModel');
+require('../models/platformUpdateModel');
+require('../models/adminSellerActivityModel');
+
 const SyncQueue = require('../models/syncQueueModel');
 
 const PRIMARY_URI = process.env.MONGO_URI_A || process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ecomerce';
