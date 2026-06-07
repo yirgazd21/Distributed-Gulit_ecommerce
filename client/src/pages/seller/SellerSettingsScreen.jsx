@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { FaArrowLeft, FaCog, FaCloudUploadAlt, FaSave } from 'react-icons/fa';
 import Loader from '../../components/Loader';
 import {
   useGetSellerSettingsQuery,
   useUpdateSellerSettingsMutation,
+  useUpdateSellerProfileMutation,
 } from '../../store/slices/sellersApiSlice';
 import { useUploadProductImagesMutation } from '../../store/slices/sellerProductsApiSlice';
+import { setSellerCredentials } from '../../store/slices/sellerAuthSlice';
 import { buildMediaUrl } from '../../utils/mediaUrl';
 
 const defaultForm = {
@@ -127,16 +130,35 @@ const FieldBlock = ({ label, children, className = '' }) => (
 );
 
 const SellerSettingsScreen = () => {
+  const dispatch = useDispatch();
+  const { sellerInfo } = useSelector((state) => state.sellerAuth);
+
   const { data, isLoading, error, refetch } = useGetSellerSettingsQuery();
   const [updateSettings, { isLoading: saving }] = useUpdateSellerSettingsMutation();
   const [uploadImages, { isLoading: uploading }] = useUploadProductImagesMutation();
+  const [updateProfile, { isLoading: updatingProfile }] = useUpdateSellerProfileMutation();
 
   const [form, setForm] = useState(defaultForm);
   const [supportedCountriesInput, setSupportedCountriesInput] = useState('');
   const [warehouseInput, setWarehouseInput] = useState('');
   const [customBannersInput, setCustomBannersInput] = useState('');
 
+  // Local state for personal profile & password change
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const settingsData = data?.settings || data;
+
+  useEffect(() => {
+    if (sellerInfo) {
+      setName(sellerInfo.name || '');
+      setEmail(sellerInfo.email || '');
+      setPhoneNumber(sellerInfo.phoneNumber || '');
+    }
+  }, [sellerInfo]);
 
   useEffect(() => {
     if (!settingsData) return;
@@ -247,6 +269,42 @@ const SellerSettingsScreen = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
+    // 1. If password or profile fields are modified, update profile first
+    const profileChanged = 
+      name !== (sellerInfo?.name || '') ||
+      email !== (sellerInfo?.email || '') ||
+      phoneNumber !== (sellerInfo?.phoneNumber || '') ||
+      password !== '';
+
+    if (profileChanged) {
+      if (password && password !== confirmPassword) {
+        toast.error('Passwords do not match');
+        return;
+      }
+
+      try {
+        const profilePayload = { name, email, phoneNumber };
+        if (password) {
+          profilePayload.password = password;
+        }
+        const updatedProfileRes = await updateProfile(profilePayload).unwrap();
+        dispatch(setSellerCredentials({
+          ...sellerInfo,
+          name: updatedProfileRes.name,
+          email: updatedProfileRes.email,
+          phoneNumber: updatedProfileRes.phoneNumber,
+        }));
+        setPassword('');
+        setConfirmPassword('');
+        toast.success('Seller profile updated successfully');
+      } catch (err) {
+        toast.error(err?.data?.message || err.error || 'Failed to update profile');
+        return; // Don't proceed to save settings if profile update failed
+      }
+    }
+
+    // 2. Save settings
     const payload = {
       ...form,
       shippingSettings: {
@@ -284,6 +342,29 @@ const SellerSettingsScreen = () => {
       </h1>
 
       <form onSubmit={submitHandler} className="space-y-8">
+        <section className="bg-[#1e293b] p-6 rounded-3xl border border-gray-700">
+          <h2 className="text-xl font-bold text-white mb-5">Seller Profile & Password Security</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <FieldBlock label="Full Name">
+              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-[#0f172a] border border-gray-700 rounded-xl px-4 py-3 text-white" />
+            </FieldBlock>
+            <FieldBlock label="Email Address">
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-[#0f172a] border border-gray-700 rounded-xl px-4 py-3 text-white" />
+            </FieldBlock>
+            <FieldBlock label="Phone Number">
+              <input value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="w-full bg-[#0f172a] border border-gray-700 rounded-xl px-4 py-3 text-white" />
+            </FieldBlock>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FieldBlock label="New Password (leave blank to keep current)">
+              <input type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-[#0f172a] border border-gray-700 rounded-xl px-4 py-3 text-white" />
+            </FieldBlock>
+            <FieldBlock label="Confirm New Password">
+              <input type="password" placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="w-full bg-[#0f172a] border border-gray-700 rounded-xl px-4 py-3 text-white" />
+            </FieldBlock>
+          </div>
+        </section>
+
         <section className="bg-[#1e293b] p-6 rounded-3xl border border-gray-700">
           <h2 className="text-xl font-bold text-white mb-5">1. Basic Shop Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

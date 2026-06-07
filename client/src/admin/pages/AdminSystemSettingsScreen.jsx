@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { FaCog, FaSignOutAlt, FaSync } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import logo from '../../assets/gulit.png';
 import AdminSidebar from '../components/AdminSidebar';
 import ThemeToggle from '../../components/ThemeToggle';
-import { adminLogout } from '../slices/adminAuthSlice';
+import { adminLogout, setAdminCredentials } from '../slices/adminAuthSlice';
 import {
   useAdminCreatePlatformUpdateMutation,
   useAdminCreateCategoryMutation,
@@ -14,12 +14,15 @@ import {
   useAdminGetPlatformUpdatesQuery,
   useAdminUpdateCategoryMutation,
   useAdminUpdatePlatformUpdateMutation,
+  useAdminUpdateProfileMutation,
 } from '../slices/adminApiSlice';
 import RichTextMessage from '../../components/RichTextMessage';
 
 const AdminSystemSettingsScreen = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { adminInfo } = useSelector((state) => state.adminAuth);
 
   const [audienceFilter, setAudienceFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -34,6 +37,12 @@ const AdminSystemSettingsScreen = () => {
   const [categoryName, setCategoryName] = useState('');
   const [categorySubcategories, setCategorySubcategories] = useState('');
 
+  // Admin profile update form state
+  const [adminName, setAdminName] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [confirmAdminPassword, setConfirmAdminPassword] = useState('');
+
   const { data, isLoading, isError, isFetching, refetch } = useAdminGetPlatformUpdatesQuery({
     audience: audienceFilter,
     status: statusFilter,
@@ -45,13 +54,47 @@ const AdminSystemSettingsScreen = () => {
   const { data: categoryData, isLoading: loadingCategories } = useAdminGetCategoriesQuery();
   const [createCategory, { isLoading: creatingCategory }] = useAdminCreateCategoryMutation();
   const [updateCategory, { isLoading: updatingCategory }] = useAdminUpdateCategoryMutation();
+  const [updateAdminProfile, { isLoading: updatingProfile }] = useAdminUpdateProfileMutation();
 
   const updates = data?.updates || [];
   const categories = categoryData?.categories || [];
 
+  useEffect(() => {
+    if (adminInfo) {
+      setAdminName(adminInfo.name || '');
+      setAdminEmail(adminInfo.email || '');
+    }
+  }, [adminInfo]);
+
   const logoutHandler = () => {
     dispatch(adminLogout());
     navigate('/admin/login');
+  };
+
+  const submitAdminProfile = async (e) => {
+    e.preventDefault();
+    if (adminPassword && adminPassword !== confirmAdminPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    try {
+      const payload = {
+        name: adminName,
+        email: adminEmail,
+      };
+      if (adminPassword) {
+        payload.password = adminPassword;
+      }
+
+      const res = await updateAdminProfile(payload).unwrap();
+      dispatch(setAdminCredentials({ ...adminInfo, name: res.name, email: res.email }));
+      setAdminPassword('');
+      setConfirmAdminPassword('');
+      toast.success('Admin profile updated successfully');
+    } catch (err) {
+      toast.error(err?.data?.message || err.error || 'Failed to update admin profile');
+    }
   };
 
   const submitCreate = async (e) => {
@@ -165,6 +208,64 @@ const AdminSystemSettingsScreen = () => {
                 <FaCog className="text-cyan-300" /> Platform Updates
               </h1>
               <p className="text-gray-300 mt-2">Publish buyer/seller announcements and control visibility.</p>
+            </div>
+
+            <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-4 space-y-4">
+              <div>
+                <p className="font-black text-gray-100">Admin Account Profile & Security</p>
+                <p className="text-sm text-gray-400 mt-1">Update your admin profile details and change password.</p>
+              </div>
+
+              <form onSubmit={submitAdminProfile} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className="text-sm text-gray-300 space-y-1">
+                    <span>Admin Name</span>
+                    <input
+                      value={adminName}
+                      onChange={(e) => setAdminName(e.target.value)}
+                      placeholder="Name"
+                      className="w-full px-3 py-3 bg-[#020617]/80 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                    />
+                  </label>
+                  <label className="text-sm text-gray-300 space-y-1">
+                    <span>Admin Email</span>
+                    <input
+                      type="email"
+                      value={adminEmail}
+                      onChange={(e) => setAdminEmail(e.target.value)}
+                      placeholder="Email"
+                      className="w-full px-3 py-3 bg-[#020617]/80 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                    />
+                  </label>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <label className="text-sm text-gray-300 space-y-1">
+                    <span>New Password (leave blank to keep current)</span>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      className="w-full px-3 py-3 bg-[#020617]/80 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                    />
+                  </label>
+                  <label className="text-sm text-gray-300 space-y-1">
+                    <span>Confirm New Password</span>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmAdminPassword}
+                      onChange={(e) => setConfirmAdminPassword(e.target.value)}
+                      className="w-full px-3 py-3 bg-[#020617]/80 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                    />
+                  </label>
+                </div>
+                <div>
+                  <button type="submit" disabled={updatingProfile} className="px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-[#04111f] font-black disabled:opacity-50">
+                    {updatingProfile ? 'Saving...' : 'Update Admin Account'}
+                  </button>
+                </div>
+              </form>
             </div>
 
             <div className="bg-[#0f172a] border border-white/10 rounded-2xl p-4 space-y-4">
@@ -329,7 +430,7 @@ const AdminSystemSettingsScreen = () => {
                         <tr><td colSpan={7} className="px-3 py-6 text-center text-gray-400">No updates found.</td></tr>
                       ) : (
                         updates.map((item) => (
-                          <tr key={item._id} className="border-b border-white/5">
+                           <tr key={item._id} className="border-b border-white/5">
                             <td className="px-3 py-3">
                               <p className="font-black text-gray-100">{item.title}</p>
                               <RichTextMessage text={item.message} className="text-xs text-gray-500 mt-1 line-clamp-2" />
