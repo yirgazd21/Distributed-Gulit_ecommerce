@@ -64,7 +64,7 @@ const HomeScreen = () => {
               {keyword ? `Search: ${keyword}` : 'Latest Arrivals'}
             </h2>
             <p className="text-sm font-semibold text-gray-500 mt-2">
-              {products ? `${products.length} products found` : 'Loading products...'}
+              {products ? ` ` : 'Loading products...'}
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">

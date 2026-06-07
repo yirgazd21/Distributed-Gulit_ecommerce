@@ -228,7 +228,7 @@ const ProductDetailScreen = () => {
                   <span className="font-bold text-gray-700 dark:text-slate-200">Availability:</span>
                   {product.countInStock > 0 ? (
                     <span className="text-green-600 font-bold flex items-center gap-1 bg-green-100 px-3 py-1 rounded-full text-sm">
-                      <FaCheckCircle /> {product.countInStock} In Stock
+                      <FaCheckCircle /> ✅ 
                     </span>
                   ) : (
                     <span className="text-red-500 font-bold bg-red-100 px-3 py-1 rounded-full text-sm">Out of Stock</span>
