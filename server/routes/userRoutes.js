@@ -11,6 +11,14 @@ const {
     updateUserProfile
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
+const rateLimiter = require('../middleware/rateLimiter');
+
+const authLimiter = rateLimiter({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5,
+    message: 'Too many attempts. Please try again in {remaining}.'
+});
+
 const {
     addToFavorites,
     removeFromFavorites,
@@ -29,9 +37,9 @@ const {
 
 
 // Define the paths
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.post('/google', googleAuthUser);
+router.post('/register', authLimiter, registerUser);
+router.post('/login', authLimiter, loginUser);
+router.post('/google', authLimiter, googleAuthUser);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-reset-code', verifyResetCode);
 router.post('/reset-password/:token', resetPassword);

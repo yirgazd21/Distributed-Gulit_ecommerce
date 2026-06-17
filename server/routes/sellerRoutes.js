@@ -1,5 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const rateLimiter = require('../middleware/rateLimiter');
+
+const authLimiter = rateLimiter({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: 'Too many attempts. Please try again in {remaining}.'
+});
 
 const {
   registerSeller,
@@ -23,9 +30,9 @@ const { uploadSellerDocs } = require('../middleware/uploadMiddleware');
 const { getSellerOrders, getSellerOrderById, updateOrderToDelivered, updateSellerOrderStatus, completeOrderRefund, rejectOrderRefund } = require('../controllers/sellerOrderController');
 const { protectSeller } = require('../middleware/authMiddleware');
 
-router.post('/', uploadSellerDocs, registerSeller);
-router.post('/login', authSeller);
-router.post('/google/login', googleLoginSeller);
+router.post('/', uploadSellerDocs, authLimiter, registerSeller);
+router.post('/login', authLimiter, authSeller);
+router.post('/google/login', authLimiter, googleLoginSeller);
 router.post('/google/identity', googleIdentitySeller);
 router.post('/forgot-password', forgotSellerPassword);
 router.post('/reset-password/:token', resetSellerPassword);
